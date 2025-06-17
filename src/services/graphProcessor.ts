@@ -97,7 +97,8 @@ export function buildGraphFromParsedData(
     parsedData: ParsedData,
     currentNetName: string,
     exclusionSet: Set<string>,
-    selectedOperationTypes: Set<string> = new Set()
+    selectedOperationTypes: Set<string> = new Set(),
+    includeUnknownTypes: boolean = false
 ): GraphData {
     const {
         opData,
@@ -117,7 +118,9 @@ export function buildGraphFromParsedData(
         if (!jobName || exclusionSet.has(jobName)) return;
 
         // Filtra per tipo di operazione se ci sono tipi selezionati
-        if (!selectedOperationTypes.has(row['Tipo'])) return;
+        if (selectedOperationTypes.size > 0 && 
+            !selectedOperationTypes.has(row['Tipo']) && 
+            !(includeUnknownTypes && !row['Tipo'])) return;
 
         const node: GraphNode = {
             id: jobName,

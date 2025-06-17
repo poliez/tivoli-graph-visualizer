@@ -37,8 +37,9 @@ function App() {
     const [isParsing, setIsParsing] = useState(false);
 
     // STATI PER LA FASE 2: CONFIGURAZIONE E GENERAZIONE
-    const [excludedNodes, setExcludedNodes] = useState<Set<string>>(new Set(['BNRUN']));
+    const [excludedNodes, setExcludedNodes] = useState<Set<string>>(new Set());
     const [selectedOperationTypes, setSelectedOperationTypes] = useState<Set<string>>(new Set());
+    const [includeUnknownTypes, setIncludeUnknownTypes] = useState(false);
     const [fullGraphData, setFullGraphData] = useState<GraphData | null>(null);
     const [filteredGraphData, setFilteredGraphData] = useState<GraphData | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -98,7 +99,7 @@ function App() {
         try {
             const netName = getCurrentNetName(files[0]);
             setCurrentNetName(netName);
-            const graph = buildGraphFromParsedData(parsedData, netName, excludedNodes, selectedOperationTypes);
+            const graph = buildGraphFromParsedData(parsedData, netName, excludedNodes, selectedOperationTypes, includeUnknownTypes);
             setFullGraphData(graph);
             setFilteredGraphData(graph);
         } catch (err: unknown) {
@@ -152,6 +153,8 @@ function App() {
                                     operationTypes={operationTypes}
                                     selectedTypes={selectedOperationTypes}
                                     onTypeChange={setSelectedOperationTypes}
+                                    includeUnknownTypes={includeUnknownTypes}
+                                    onIncludeUnknownTypesChange={setIncludeUnknownTypes}
                                 />
                             </div>
                             <div className="control-group">

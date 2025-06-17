@@ -202,7 +202,7 @@ describe('buildGraphFromParsedData', () => {
 
     // JOB2 should be excluded
     expect(result.nodes.find(n => n.id === 'JOB2')).toBeUndefined();
-    
+
     // Links involving JOB2 should be excluded
     expect(result.links.find(l => l.source === 'JOB1' && l.target === 'JOB2')).toBeUndefined();
     expect(result.links.find(l => l.source === 'JOB2' && l.target === 'JOB3')).toBeUndefined();
@@ -229,6 +229,33 @@ describe('buildGraphFromParsedData', () => {
       l.source === 'JOB1' && 
       l.target === 'JOB3'
     )).toBeUndefined();
+  });
+
+  it('should handle unknown types based on includeUnknownTypes flag', () => {
+    // Add a job with unknown type (no Tipo field)
+    parsedData.opData.push({
+      'Nome Job': 'UNKNOWN_TYPE_JOB'
+    } as OperationData);
+
+    // With includeUnknownTypes=false, the job should be excluded
+    const resultWithoutUnknown = buildGraphFromParsedData(
+      parsedData, 
+      'TEST_NET', 
+      exclusionSet, 
+      new Set(['COMMAND']), 
+      false
+    );
+    expect(resultWithoutUnknown.nodes.find(n => n.id === 'UNKNOWN_TYPE_JOB')).toBeUndefined();
+
+    // With includeUnknownTypes=true, the job should be included
+    const resultWithUnknown = buildGraphFromParsedData(
+      parsedData, 
+      'TEST_NET', 
+      exclusionSet, 
+      new Set(['COMMAND']), 
+      true
+    );
+    expect(resultWithUnknown.nodes.find(n => n.id === 'UNKNOWN_TYPE_JOB')).toBeDefined();
   });
 });
 

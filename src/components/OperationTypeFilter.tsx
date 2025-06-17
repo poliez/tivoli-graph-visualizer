@@ -4,12 +4,16 @@ type OperationTypeFilterProps = {
     operationTypes: string[];
     selectedTypes: Set<string>;
     onTypeChange: (newSelectedTypes: Set<string>) => void;
+    includeUnknownTypes?: boolean;
+    onIncludeUnknownTypesChange?: (include: boolean) => void;
 };
 
 const OperationTypeFilter: React.FC<OperationTypeFilterProps> = ({
     operationTypes,
     selectedTypes,
-    onTypeChange
+    onTypeChange,
+    includeUnknownTypes = false,
+    onIncludeUnknownTypesChange
 }) => {
     const handleToggleType = (type: string) => {
         const newSet = new Set(selectedTypes);
@@ -29,6 +33,12 @@ const OperationTypeFilter: React.FC<OperationTypeFilterProps> = ({
         onTypeChange(new Set());
     };
 
+    const handleToggleUnknownTypes = () => {
+        if (onIncludeUnknownTypesChange) {
+            onIncludeUnknownTypesChange(!includeUnknownTypes);
+        }
+    };
+
     return (
         <div className="operation-type-filter">
             <div className="filter-header">
@@ -43,6 +53,16 @@ const OperationTypeFilter: React.FC<OperationTypeFilterProps> = ({
                 </div>
             </div>
             <div className="type-list">
+                <div className="unknown-type-item">
+                    <input
+                        type="checkbox"
+                        id="include-unknown-types"
+                        checked={includeUnknownTypes}
+                        onChange={handleToggleUnknownTypes}
+                    />
+                    <label htmlFor="include-unknown-types">Includi Tipi Sconosciuti</label>
+                </div>
+                <div className="type-separator"></div>
                 {operationTypes.map(type => (
                     <div key={type} className="type-item">
                         <input

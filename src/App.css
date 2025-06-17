@@ -318,7 +318,7 @@ body {
 }
 
 .type-list {
-    max-height: 100px;
+    max-height: 18vh;
     overflow-y: auto;
     border-top: 1px solid #eee;
 }
@@ -333,6 +333,26 @@ body {
     margin-left: 0.5rem;
     cursor: pointer;
     white-space: nowrap;
+}
+
+.unknown-type-item {
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0;
+    font-weight: bold;
+    color: #555;
+}
+
+.unknown-type-item label {
+    margin-left: 0.5rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.type-separator {
+    height: 1px;
+    background-color: #ccc;
+    margin: 0.5rem 0;
 }
 
 /* Aggiorna i controlli principali */
