@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 // Operazioni (job)
 interface OperationData {
     'Nome Job': string;
+    'Tipo': 'JOB' | 'LOG' | 'JOBZC' | string;
     [key: string]: string | number | boolean; // Altri campi possibili
 }
 

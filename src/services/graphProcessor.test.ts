@@ -174,7 +174,7 @@ describe('buildGraphFromParsedData', () => {
   });
 
   it('should build a graph from parsed data', () => {
-    const result = buildGraphFromParsedData(parsedData, 'TEST_NET', exclusionSet);
+    const result = buildGraphFromParsedData(parsedData, 'TEST_NET', exclusionSet, new Set(['COMMAND']));
 
     // Check nodes
     expect(result.nodes).toHaveLength(5); // 3 internal + 2 external

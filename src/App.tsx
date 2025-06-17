@@ -2,13 +2,14 @@ import {useEffect, useState} from 'react';
 import type {GraphData, GraphNode, ParsedData} from './types';
 import './App.css';
 
-import {buildGraphFromParsedData, extractAllNodeNames, filterGraph, getCurrentNetName, parseAllFiles} from './services/graphProcessor';
+import {buildGraphFromParsedData, extractAllNodeNames, extractOperationTypes, filterGraph, getCurrentNetName, parseAllFiles} from './services/graphProcessor';
 
 import FileUploader from './components/FileUploader';
 import GraphViewer from './components/GraphViewer';
 import NodeDetailPanel from './components/NodeDetailPanel';
 import SearchBar from './components/SearchBar';
 import ExclusionSelector from "./components/ExclusionSelector.tsx";
+import OperationTypeFilter from "./components/OperationTypeFilter";
 
 // Definiamo una mappa per riconoscere i file
 const fileTypeKeywords: Record<string, keyof InputFiles> = {
@@ -32,10 +33,12 @@ function App() {
     // STATI PER LA FASE 1: PARSING
     const [parsedData, setParsedData] = useState<ParsedData | null>(null);
     const [allNodeNames, setAllNodeNames] = useState<string[]>([]);
+    const [operationTypes, setOperationTypes] = useState<string[]>([]);
     const [isParsing, setIsParsing] = useState(false);
 
     // STATI PER LA FASE 2: CONFIGURAZIONE E GENERAZIONE
     const [excludedNodes, setExcludedNodes] = useState<Set<string>>(new Set(['BNRUN']));
+    const [selectedOperationTypes, setSelectedOperationTypes] = useState<Set<string>>(new Set());
     const [fullGraphData, setFullGraphData] = useState<GraphData | null>(null);
     const [filteredGraphData, setFilteredGraphData] = useState<GraphData | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -54,6 +57,7 @@ function App() {
         setError(null);
         setParsedData(null);
         setAllNodeNames([]);
+        setOperationTypes([]);
         setFullGraphData(null); // Resetta tutto
         setCurrentNetName(null); // Resetta il nome del Net
         setFiles(files); // Salva i file per uso futuro
@@ -72,6 +76,11 @@ function App() {
             const data = await parseAllFiles(classifiedFiles);
             setParsedData(data);
             setAllNodeNames(extractAllNodeNames(data));
+
+            // Estrai i tipi di operazione e inizializza il set dei tipi selezionati
+            const types = extractOperationTypes(data);
+            setOperationTypes(types);
+            setSelectedOperationTypes(new Set(types)); // Inizialmente, seleziona tutti i tipi
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Errore durante il parsing dei file.';
             setError(errorMessage);
@@ -89,7 +98,7 @@ function App() {
         try {
             const netName = getCurrentNetName(files[0]);
             setCurrentNetName(netName);
-            const graph = buildGraphFromParsedData(parsedData, netName, excludedNodes);
+            const graph = buildGraphFromParsedData(parsedData, netName, excludedNodes, selectedOperationTypes);
             setFullGraphData(graph);
             setFilteredGraphData(graph);
         } catch (err: unknown) {
@@ -138,7 +147,15 @@ function App() {
                                 />
                             </div>
                             <div className="control-group">
-                                <h4>3. Genera Grafo</h4>
+                                <h4>3. Filtra per Tipo</h4>
+                                <OperationTypeFilter
+                                    operationTypes={operationTypes}
+                                    selectedTypes={selectedOperationTypes}
+                                    onTypeChange={setSelectedOperationTypes}
+                                />
+                            </div>
+                            <div className="control-group">
+                                <h4>4. Genera Grafo</h4>
                                 <button onClick={handleGenerateGraph} disabled={isGenerating} className="generate-button">
                                     {isGenerating ? 'Generazione...' : 'Genera Grafo'}
                                 </button>

@@ -79,11 +79,25 @@ export function extractAllNodeNames(parsedData: ParsedData): string[] {
     return Array.from(nodeNames).sort();
 }
 
+// Funzione per estrarre tutti i tipi di operazione unici dai dati parsati
+export function extractOperationTypes(parsedData: ParsedData): string[] {
+    const operationTypes = new Set<string>();
+
+    parsedData.opData?.forEach(row => {
+        if (row['Tipo']) {
+            operationTypes.add(row['Tipo']);
+        }
+    });
+
+    return Array.from(operationTypes).sort();
+}
+
 // processFilesToGraphData ORA ACCETTA I DATI GIÀ PARSATI
 export function buildGraphFromParsedData(
     parsedData: ParsedData,
     currentNetName: string,
-    exclusionSet: Set<string>
+    exclusionSet: Set<string>,
+    selectedOperationTypes: Set<string> = new Set()
 ): GraphData {
     const {
         opData,
@@ -101,6 +115,9 @@ export function buildGraphFromParsedData(
     opData.forEach((row) => {
         const jobName = row['Nome Job'].trim();
         if (!jobName || exclusionSet.has(jobName)) return;
+
+        // Filtra per tipo di operazione se ci sono tipi selezionati
+        if (!selectedOperationTypes.has(row['Tipo'])) return;
 
         const node: GraphNode = {
             id: jobName,
