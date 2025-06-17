@@ -45,6 +45,7 @@ function App() {
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [files, setFiles] = useState<FileList | null>(null);
+    const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
 
     // FASE 1: L'utente carica i file, noi li parsiamo subito
     const handleFilesSelected = async (files: FileList) => {
@@ -103,8 +104,16 @@ function App() {
 
     return (
         <div className="app-container">
-            <header className="app-controls-header">
-                <h1>Tivoli Workload Graph Visualizer</h1>
+            <header className={`app-controls-header ${isHeaderCollapsed ? 'collapsed' : ''}`}>
+                <div className="header-title-row">
+                    <h1>Tivoli Workload Graph Visualizer</h1>
+                    <button 
+                        className="collapse-toggle-btn" 
+                        onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
+                    >
+                        {isHeaderCollapsed ? '▼' : '▲'}
+                    </button>
+                </div>
                 <div className="controls-container">
                     <div className="control-group">
                         <h4>1. Carica File</h4>
