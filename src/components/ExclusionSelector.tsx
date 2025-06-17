@@ -29,6 +29,26 @@ const ExclusionSelector: React.FC<ExclusionSelectorProps> = ({allNodeNames, init
         );
     }, [allNodeNames, filterText]);
 
+    // Function to exclude all filtered nodes
+    const handleExcludeAllFiltered = () => {
+        const newSet = new Set(excludedNodes);
+        filteredList.forEach(nodeName => {
+            newSet.add(nodeName);
+        });
+        setExcludedNodes(newSet);
+        onExclusionChange(newSet);
+    };
+
+    // Function to include all filtered nodes
+    const handleIncludeAllFiltered = () => {
+        const newSet = new Set(excludedNodes);
+        filteredList.forEach(nodeName => {
+            newSet.delete(nodeName);
+        });
+        setExcludedNodes(newSet);
+        onExclusionChange(newSet);
+    };
+
     return (
         <div className="exclusion-selector">
             <label htmlFor="exclusion-filter">Filtra e Seleziona Nodi da Escludere</label>
@@ -39,6 +59,22 @@ const ExclusionSelector: React.FC<ExclusionSelectorProps> = ({allNodeNames, init
                 value={filterText}
                 onChange={(e) => setFilterText(e.target.value)}
             />
+            <div className="filter-actions">
+                <button 
+                    className="select-button" 
+                    onClick={handleExcludeAllFiltered}
+                    title="Escludi tutti i risultati filtrati"
+                >
+                    Escludi Tutti
+                </button>
+                <button 
+                    className="select-button" 
+                    onClick={handleIncludeAllFiltered}
+                    title="Includi tutti i risultati filtrati"
+                >
+                    Includi Tutti
+                </button>
+            </div>
             <div className="exclusion-list">
                 {filteredList.map(nodeName => (
                     <div key={nodeName} className="list-item">
