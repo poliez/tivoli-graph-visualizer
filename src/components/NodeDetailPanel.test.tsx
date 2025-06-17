@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import NodeDetailPanel from './NodeDetailPanel';
-import type { GraphNode } from '../types';
+import type { GraphNode, GraphData } from '../types';
 
 describe('NodeDetailPanel', () => {
   const mockNode: GraphNode = {
@@ -22,8 +22,37 @@ describe('NodeDetailPanel', () => {
     }
   };
 
+  const mockExternalNode: GraphNode = {
+    id: 'EXT_JOB1',
+    name: 'External Job 1',
+    type: 'external',
+    metadata: {
+      'Nome Job': 'External Job 1',
+      'Net': 'EXT_NET'
+    }
+  };
+
+  const mockGraphData: GraphData = {
+    nodes: [
+      mockNode,
+      mockExternalNode,
+      {
+        id: 'JOB2',
+        name: 'Another Job',
+        type: 'internal',
+        metadata: {}
+      }
+    ],
+    links: [
+      {
+        source: 'JOB1',
+        target: 'EXT_JOB1'
+      }
+    ]
+  };
+
   it('renders correctly with node details', () => {
-    render(<NodeDetailPanel node={mockNode} onClose={() => {}} />);
+    render(<NodeDetailPanel node={mockNode} graphData={mockGraphData} onClose={() => {}} />);
 
     // Check if the node name is displayed in the header
     expect(screen.getByText('Dettagli: Test Job')).toBeInTheDocument();
@@ -43,7 +72,7 @@ describe('NodeDetailPanel', () => {
   });
 
   it('does not display D3-specific properties', () => {
-    render(<NodeDetailPanel node={mockNode} onClose={() => {}} />);
+    render(<NodeDetailPanel node={mockNode} graphData={mockGraphData} onClose={() => {}} />);
 
     // D3 properties should not be displayed
     expect(screen.queryByText('x')).not.toBeInTheDocument();
@@ -55,7 +84,7 @@ describe('NodeDetailPanel', () => {
 
   it('calls onClose when close button is clicked', () => {
     const onCloseMock = vi.fn();
-    render(<NodeDetailPanel node={mockNode} onClose={onCloseMock} />);
+    render(<NodeDetailPanel node={mockNode} graphData={mockGraphData} onClose={onCloseMock} />);
 
     // Find and click the close button
     const closeButton = screen.getByRole('button', { name: '×' });
@@ -76,7 +105,7 @@ describe('NodeDetailPanel', () => {
       }
     };
 
-    render(<NodeDetailPanel node={nodeWithEmptyValues} onClose={() => {}} />);
+    render(<NodeDetailPanel node={nodeWithEmptyValues} graphData={mockGraphData} onClose={() => {}} />);
 
     // Check if empty values are displayed as 'N/D'
     expect(screen.getByText('Empty Property')).toBeInTheDocument();
@@ -86,5 +115,28 @@ describe('NodeDetailPanel', () => {
     // There should be at least one 'N/D' value
     const ndValues = screen.getAllByText('N/D', { selector: 'dd' });
     expect(ndValues.length).toBeGreaterThan(0);
+  });
+
+  it('displays external dependencies when they exist', () => {
+    render(<NodeDetailPanel node={mockNode} graphData={mockGraphData} onClose={() => {}} />);
+
+    // Check if the external dependencies section is displayed
+    expect(screen.getByText('Dipendenze Esterne')).toBeInTheDocument();
+
+    // Check if the external dependency is listed
+    expect(screen.getByText('External Job 1')).toBeInTheDocument();
+  });
+
+  it('does not display external dependencies section when none exist', () => {
+    // Create a graph with no external dependencies for the node
+    const graphWithNoExternalDeps: GraphData = {
+      nodes: [mockNode],
+      links: []
+    };
+
+    render(<NodeDetailPanel node={mockNode} graphData={graphWithNoExternalDeps} onClose={() => {}} />);
+
+    // The external dependencies section should not be displayed
+    expect(screen.queryByText('Dipendenze Esterne')).not.toBeInTheDocument();
   });
 });

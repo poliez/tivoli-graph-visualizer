@@ -1,15 +1,25 @@
 import React from 'react';
-import type {GraphNode} from '../types';
+import type {GraphNode, GraphData} from '../types';
 
 type NodeDetailPanelProps = {
     node: GraphNode;
+    graphData: GraphData;
     onClose: () => void; // Aggiungiamo una funzione per chiudere il pannello
 };
 
-const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({node, onClose}) => {
+const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({node, graphData, onClose}) => {
     // Escludiamo le proprietà usate da D3 per non mostrarle come metadati
     const metadataToShow = Object.entries(node.metadata).filter(
         ([key]) => !['x', 'y', 'vx', 'vy', 'fx', 'fy', 'index'].includes(key)
+    );
+
+    // Trova tutte le dipendenze esterne direttamente connesse al nodo selezionato
+    const externalDependencies = graphData.nodes.filter(n => 
+        n.type === 'external' && 
+        graphData.links.some(link => 
+            (link.source === node.id && link.target === n.id) || 
+            (link.source === n.id && link.target === node.id)
+        )
     );
 
     return (
@@ -27,6 +37,19 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({node, onClose}) => {
                         </React.Fragment>
                     ))}
                 </dl>
+
+                {externalDependencies.length > 0 && (
+                    <div className="external-dependencies">
+                        <h4>Dipendenze Esterne</h4>
+                        <ul className="dependency-list">
+                            {externalDependencies.map(dep => (
+                                <li key={dep.id} className="dependency-item">
+                                    {dep.name}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
         </div>
     );

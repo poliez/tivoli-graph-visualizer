@@ -363,9 +363,27 @@ body {
     gap: 0.5rem;
 }
 
-.control-group h4 {
+.control-group h4, .external-dependencies h4 {
     margin: 0;
     color: #333;
     border-bottom: 2px solid steelblue;
     padding-bottom: 0.25rem;
+}
+
+.external-dependencies {
+    margin-top: 1rem;
+}
+
+.dependency-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dependency-item {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
 }

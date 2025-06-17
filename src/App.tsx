@@ -191,7 +191,7 @@ function App() {
 
                 {/* Il pannello dei dettagli ora è un overlay controllato dallo stato `selectedNode` */}
                 <div className={`node-detail-sidebar ${selectedNode ? 'open' : ''}`}>
-                    {selectedNode && <NodeDetailPanel node={selectedNode} onClose={() => setSelectedNode(null)}/>}
+                    {selectedNode && filteredGraphData && <NodeDetailPanel node={selectedNode} graphData={filteredGraphData} onClose={() => setSelectedNode(null)}/>}
                 </div>
             </main>
         </div>
