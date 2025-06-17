@@ -33,6 +33,7 @@ function App() {
     const [filteredGraphData, setFilteredGraphData] = useState<GraphData | null>(null);
     const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>('');
+    const [exclusionList, setExclusionList] = useState<string>('BNRUN'); // NUOVO stato, con un default utile
 
     // Nuovo stato per gestire il feedback durante l'elaborazione
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -63,13 +64,14 @@ function App() {
         setIsProcessing(true);
         setError(null);
         try {
-            const graphData = await processFilesToGraphData(selectedFiles);
+            // Passiamo la lista di esclusione al processor!
+            const graphData = await processFilesToGraphData(selectedFiles, exclusionList);
             setFullGraphData(graphData);
             setFilteredGraphData(graphData);
-            setSelectedFiles({}); // Resetta i file dopo la generazione
+            // NON resettiamo i file, l'utente potrebbe voler rigenerare con esclusioni diverse
         } catch (err: any) {
             console.error(err);
-            setError('Errore durante l\'elaborazione dei file. Controlla la console.');
+            setError(err.message || 'Errore durante l\'elaborazione dei file.');
         } finally {
             setIsProcessing(false);
         }
@@ -103,15 +105,28 @@ function App() {
             <header className="app-controls-header">
                 <h1>Tivoli Workload Graph Visualizer</h1>
                 <div className="controls-container">
-                    <FileUploader onFilesSelected={handleFilesSelected}/>
-                    <button onClick={handleGenerateGraph} disabled={!areRequiredFilesPresent || isProcessing}>
-                        {isProcessing ? 'Elaborazione...' : 'Genera Grafo'}
+                    <FileUploader onFilesSelected={handleFilesSelected} />
+
+                    {/* NUOVO: Textarea per la lista di esclusione */}
+                    <div className="textarea-control">
+                        <label htmlFor="exclusion-list">Nodi da Escludere</label>
+                        <textarea
+                            id="exclusion-list"
+                            value={exclusionList}
+                            onChange={(e) => setExclusionList(e.target.value)}
+                            placeholder="BNRUN, ALTRO_JOB, ..."
+                            rows={3}
+                        />
+                    </div>
+
+                    <button onClick={handleGenerateGraph} disabled={!areRequiredFilesPresent || isProcessing} className="generate-button">
+                        {isProcessing ? 'Elaborazione...' : 'Genera / Aggiorna Grafo'}
                     </button>
-                    {fullGraphData && <SearchBar onSearch={setSearchTerm}/>}
+
+                    {fullGraphData && <SearchBar onSearch={setSearchTerm} />}
                 </div>
             </header>
 
-            {/* Il layout principale ora è più semplice */}
             <main className="app-main">
                 <div className="graph-panel">
                     {isProcessing ? (

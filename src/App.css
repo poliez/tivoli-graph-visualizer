@@ -180,3 +180,32 @@ body {
     stroke: #ff4500;
     stroke-width: 4px;
 }
+
+.controls-container {
+    flex-wrap: wrap; /* Permette ai controlli di andare a capo se lo spazio è poco */
+}
+
+.textarea-control {
+    display: flex;
+    flex-direction: column;
+}
+
+.textarea-control label {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    color: #555;
+    font-weight: bold;
+}
+
+.textarea-control textarea {
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    font-family: inherit;
+    resize: vertical; /* Permette il resize verticale */
+}
+
+.generate-button {
+    align-self: flex-end; /* Allinea il pulsante in basso nel suo spazio flex */
+    height: 100%;
+}
