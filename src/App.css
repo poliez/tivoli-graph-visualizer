@@ -53,3 +53,35 @@
 .file-uploader-form input { width: 100%; }
 .file-uploader-form button { width: 100%; padding: 0.75rem; font-size: 1rem; }
 .error-message { color: red; margin-top: 1rem; }
+
+/* Stili per il grafo D3 */
+
+.graph-panel svg {
+  cursor: grab;
+}
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+  cursor: pointer;
+}
+
+/* Requisito 6: Distinguere nodi interni ed esterni */
+.nodes circle.internal {
+  fill: steelblue;
+}
+
+.nodes circle.external {
+  fill: #888;
+}
+
+.nodes text {
+  font-family: sans-serif;
+  font-size: 10px;
+  pointer-events: none; /* Evita che il testo interferisca con il click sul nodo */
+}
