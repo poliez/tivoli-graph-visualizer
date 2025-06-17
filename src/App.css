@@ -1,87 +1,206 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
 }
 
 .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: filter 300ms;
 }
+
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+    filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+    filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
 @keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+    a:nth-of-type(2) .logo {
+        animation: logo-spin infinite 20s linear;
+    }
 }
 
 .card {
-  padding: 2em;
+    padding: 2em;
 }
 
 .read-the-docs {
-  color: #888;
+    color: #888;
 }
 
 /* Aggiungi in fondo a src/App.css */
-.app-container { display: flex; flex-direction: column; height: 100vh; }
-.app-header { padding: 1rem; background-color: #282c34; color: white; text-align: center; }
-.app-main { display: flex; flex-grow: 1; overflow: hidden; }
-.controls-panel { width: 350px; padding: 1rem; border-right: 1px solid #ccc; overflow-y: auto; }
-.graph-panel { flex-grow: 1; position: relative; }
-.placeholder { display: flex; justify-content: center; align-items: center; height: 100%; color: #888; }
-.file-uploader-form .file-input-group { margin-bottom: 1rem; }
-.file-uploader-form label { display: block; margin-bottom: 0.25rem; font-size: 0.9rem; }
-.file-uploader-form input { width: 100%; }
-.file-uploader-form button { width: 100%; padding: 0.75rem; font-size: 1rem; }
-.error-message { color: red; margin-top: 1rem; }
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.app-header {
+    padding: 1rem;
+    background-color: #282c34;
+    color: white;
+    text-align: center;
+}
+
+.app-main {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.controls-panel {
+    width: 350px;
+    padding: 1rem;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+}
+
+.graph-panel {
+    flex-grow: 1;
+    position: relative;
+}
+
+.placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #888;
+}
+
+.file-uploader-form .file-input-group {
+    margin-bottom: 1rem;
+}
+
+.file-uploader-form label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.file-uploader-form input {
+    width: 100%;
+}
+
+.file-uploader-form button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+}
+
+.error-message {
+    color: red;
+    margin-top: 1rem;
+}
 
 /* Stili per il grafo D3 */
 
 .graph-panel svg {
-  cursor: grab;
+    cursor: grab;
 }
 
 .links line {
-  stroke: #999;
-  stroke-opacity: 0.6;
+    stroke: #999;
+    stroke-opacity: 0.6;
 }
 
 .nodes circle {
-  stroke: #fff;
-  stroke-width: 1.5px;
-  cursor: pointer;
+    stroke: #fff;
+    stroke-width: 1.5px;
+    cursor: pointer;
 }
 
 /* Requisito 6: Distinguere nodi interni ed esterni */
 .nodes circle.internal {
-  fill: steelblue;
+    fill: steelblue;
 }
 
 .nodes circle.external {
-  fill: #888;
+    fill: #888;
 }
 
 .nodes text {
-  font-family: sans-serif;
-  font-size: 10px;
-  pointer-events: none; /* Evita che il testo interferisca con il click sul nodo */
+    font-family: sans-serif;
+    font-size: 10px;
+    pointer-events: none; /* Evita che il testo interferisca con il click sul nodo */
+}
+
+/* Stili per il pannello dei dettagli */
+.node-detail-panel {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.panel-header h3 {
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.panel-content dl {
+    margin: 0;
+}
+
+.panel-content dt {
+    font-weight: bold;
+    color: #555;
+    margin-top: 0.5rem;
+}
+
+.panel-content dd {
+    margin-left: 0;
+    color: #333;
+}
+
+/* Stili per la barra di ricerca */
+.search-bar {
+    margin-top: 1.5rem;
+}
+
+.search-bar label {
+    font-weight: bold;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* Requisito 5: Stile per il nodo evidenziato */
+.nodes circle.highlighted {
+    stroke: #ff4500; /* Un arancione acceso */
+    stroke-width: 4px;
 }

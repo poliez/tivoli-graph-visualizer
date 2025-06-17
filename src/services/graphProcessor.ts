@@ -124,3 +124,76 @@ export async function processFilesToGraphData(inputFiles: InputFiles): Promise<G
 
     return {nodes: Array.from(nodes.values()), links};
 }
+
+export function filterGraph(fullGraph: GraphData, searchId: string): GraphData {
+    if (!searchId) {
+        return fullGraph; // Se la ricerca è vuota, restituisci il grafo completo
+    }
+
+    const { nodes, links } = fullGraph;
+    const reachableNodes = new Set<string>();
+    const nodesToVisit: string[] = [];
+
+    // Mappe di adiacenza per una ricerca efficiente
+    const successors = new Map<string, string[]>();
+    const predecessors = new Map<string, string[]>();
+
+    links.forEach(({ source, target }) => {
+        const sourceId = typeof source === 'object' ? source.id : source;
+        const targetId = typeof target === 'object' ? target.id : target;
+
+        if (!successors.has(sourceId)) successors.set(sourceId, []);
+        successors.get(sourceId)!.push(targetId);
+
+        if (!predecessors.has(targetId)) predecessors.set(targetId, []);
+        predecessors.get(targetId)!.push(sourceId);
+    });
+
+    // Controlla se il nodo cercato esiste
+    const startNode = nodes.find(n => n.id === searchId);
+    if (!startNode) {
+        return { nodes: [], links: [] }; // Nodo non trovato, restituisci un grafo vuoto
+    }
+
+    // PASSO 1: Trova tutti i nodi raggiungibili (successori e predecessori)
+    nodesToVisit.push(startNode.id);
+    reachableNodes.add(startNode.id);
+
+    let i = 0;
+    // Visita in avanti (successori)
+    while(i < nodesToVisit.length) {
+        const currentNodeId = nodesToVisit[i++];
+        const nextNodes = successors.get(currentNodeId) || [];
+        for (const nextNodeId of nextNodes) {
+            if(!reachableNodes.has(nextNodeId)) {
+                reachableNodes.add(nextNodeId);
+                nodesToVisit.push(nextNodeId);
+            }
+        }
+    }
+
+    // Visita all'indietro (predecessori)
+    // Riusiamo lo stesso array, ripartendo dal nodo iniziale
+    nodesToVisit.length = 1;
+    i = 0;
+    while(i < nodesToVisit.length) {
+        const currentNodeId = nodesToVisit[i++];
+        const prevNodes = predecessors.get(currentNodeId) || [];
+        for (const prevNodeId of prevNodes) {
+            if(!reachableNodes.has(prevNodeId)) {
+                reachableNodes.add(prevNodeId);
+                nodesToVisit.push(prevNodeId);
+            }
+        }
+    }
+
+    // PASSO 2: Filtra nodi e archi originali in base ai nodi raggiungibili
+    const filteredNodes = nodes.filter(n => reachableNodes.has(n.id));
+    const filteredLinks = links.filter(l => {
+        const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+        const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+        return reachableNodes.has(sourceId) && reachableNodes.has(targetId);
+    });
+
+    return { nodes: filteredNodes, links: filteredLinks };
+}

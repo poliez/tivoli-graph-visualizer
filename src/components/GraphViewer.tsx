@@ -5,9 +5,10 @@ import type {GraphData, GraphNode} from '../types';
 type GraphViewerProps = {
     data: GraphData;
     onNodeClick: (node: GraphNode | null) => void;
+    searchTerm: string;
 };
 
-const GraphViewer: React.FC<GraphViewerProps> = ({data, onNodeClick}) => {
+const GraphViewer: React.FC<GraphViewerProps> = ({data, onNodeClick, searchTerm}) => {
     // useRef per ottenere un riferimento diretto all'elemento SVG nel DOM.
     // React gestisce la creazione/rimozione dell'SVG, D3 lavorerà al suo interno.
     const svgRef = useRef<SVGSVGElement>(null);
@@ -75,7 +76,7 @@ const GraphViewer: React.FC<GraphViewerProps> = ({data, onNodeClick}) => {
         // Aggiungiamo un cerchio a ogni gruppo-nodo
         node.append('circle')
             .attr('r', 15)
-            .attr('class', d => d.type); // Classe 'internal' o 'external' per lo stile
+            .attr('class', d => `${d.type} ${d.id === searchTerm ? 'highlighted' : ''}`)
 
         // Aggiungiamo l'etichetta di testo a ogni gruppo-nodo
         node.append('text')
@@ -128,7 +129,7 @@ const GraphViewer: React.FC<GraphViewerProps> = ({data, onNodeClick}) => {
                 .attr('transform', d => `translate(${d.x},${d.y})`);
         });
 
-    }, [data, onNodeClick]); // L'effetto si riesegue se i dati o la funzione di callback cambiano
+    }, [data, onNodeClick, searchTerm]); // L'effetto si riesegue se i dati o la funzione di callback cambiano
 
     return (
         <svg ref={svgRef} width="100%" height="100%"></svg>

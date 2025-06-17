@@ -1,11 +1,8 @@
-// src/App.tsx (versione aggiornata)
-
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import type {GraphData, GraphNode} from './types';
 import './App.css';
 
-// Importa la nostra nuova funzione di processing
-import {processFilesToGraphData} from './services/graphProcessor';
+import {filterGraph, processFilesToGraphData} from './services/graphProcessor';
 
 import FileUploader from './components/FileUploader';
 import GraphViewer from './components/GraphViewer';
@@ -22,7 +19,6 @@ function App() {
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    // La funzione ora è asincrona
     const handleFilesLoad = async (files: any) => {
         setIsProcessing(true);
         setError(null);
@@ -39,6 +35,13 @@ function App() {
         }
     };
 
+    useEffect(() => {
+        if (!fullGraphData) return;
+        const filtered = filterGraph(fullGraphData, searchTerm);
+        setFilteredGraphData(filtered);
+    }, [searchTerm, fullGraphData]); // Si attiva se cambia il termine di ricerca o il grafo principale
+
+
     return (
         <div className="app-container">
             <header className="app-header">
@@ -48,14 +51,17 @@ function App() {
                 <div className="controls-panel">
                     <FileUploader onFilesLoaded={handleFilesLoad} isProcessing={isProcessing}/>
                     {error && <div className="error-message">{error}</div>}
+                    {/* La barra di ricerca ora è sempre visibile quando c'è un grafo */}
                     {fullGraphData && <SearchBar onSearch={setSearchTerm}/>}
-                    {selectedNode && <NodeDetailPanel node={selectedNode}/>}
+                    {/* Passiamo la funzione per chiudere il pannello */}
+                    {selectedNode && <NodeDetailPanel node={selectedNode} onClose={() => setSelectedNode(null)}/>}
                 </div>
                 <div className="graph-panel">
                     {isProcessing ? (
                         <div className="placeholder">Elaborazione in corso...</div>
                     ) : filteredGraphData ? (
-                        <GraphViewer data={filteredGraphData} onNodeClick={setSelectedNode}/>
+                        // Passiamo anche `searchTerm` per l'highlighting
+                        <GraphViewer data={filteredGraphData} onNodeClick={setSelectedNode} searchTerm={searchTerm}/>
                     ) : (
                         <div className="placeholder">
                             {error ? 'Processo fallito.' : 'Carica i file CSV per generare il grafo.'}
