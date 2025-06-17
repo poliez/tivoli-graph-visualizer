@@ -22,7 +22,7 @@ const SearchBar: React.FC<SearchBarProps> = ({onSearch}) => {
 
     return (
         <div className="search-bar">
-            <label htmlFor="job-search">Cerca e Isola Job</label>
+            <label htmlFor="job-search" style={{marginRight: '10px'}}>Cerca e Isola Job</label>
             <input
                 id="job-search"
                 type="text"
