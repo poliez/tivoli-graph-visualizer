@@ -2,13 +2,13 @@
 
 import Papa from 'papaparse';
 import type {
-    GraphData, 
-    GraphLink, 
-    GraphNode, 
-    OperationData, 
-    InternalRelationData, 
-    ExternalPredecessorData, 
-    ExternalSuccessorData, 
+    ExternalPredecessorData,
+    ExternalSuccessorData,
+    GraphData,
+    GraphLink,
+    GraphNode,
+    InternalRelationData,
+    OperationData,
     OperatorInstructionData,
     ParsedData
 } from '../types';
@@ -42,7 +42,13 @@ function parseCsv<T>(file: File): Promise<T[]> {
 
 // NUOVA FUNZIONE DI SOLO PARSING
 export async function parseAllFiles(inputFiles: InputFiles): Promise<ParsedData> {
-    const {operations, internalRels, externalPreds, externalSuccs, operatorInstructions} = inputFiles;
+    const {
+        operations,
+        internalRels,
+        externalPreds,
+        externalSuccs,
+        operatorInstructions
+    } = inputFiles;
 
     if (!operations || !internalRels || !externalPreds || !externalSuccs) {
         throw new Error('Uno o più file richiesti non sono stati forniti.');
@@ -53,8 +59,8 @@ export async function parseAllFiles(inputFiles: InputFiles): Promise<ParsedData>
         parseCsv<InternalRelationData>(internalRels),
         parseCsv<ExternalPredecessorData>(externalPreds),
         parseCsv<ExternalSuccessorData>(externalSuccs),
-        operatorInstructions 
-            ? parseCsv<OperatorInstructionData>(operatorInstructions) 
+        operatorInstructions
+            ? parseCsv<OperatorInstructionData>(operatorInstructions)
             : Promise.resolve([] as OperatorInstructionData[]),
     ]);
 
@@ -79,7 +85,13 @@ export function buildGraphFromParsedData(
     currentNetName: string,
     exclusionSet: Set<string>
 ): GraphData {
-    const {opData, internalRelsData, externalPredsData, externalSuccsData, opInstructionsData} = parsedData;
+    const {
+        opData,
+        internalRelsData,
+        externalPredsData,
+        externalSuccsData,
+        opInstructionsData
+    } = parsedData;
 
     // La logica da qui in poi è quasi identica a prima, ma usa i dati passati come argomento
     const nodes = new Map<string, GraphNode>();
@@ -238,8 +250,8 @@ export function filterGraph(fullGraph: GraphData, searchId: string): GraphData {
     // PASSO 2: Filtra nodi e archi originali in base ai nodi raggiungibili
     const filteredNodes = nodes.filter(n => reachableNodes.has(n.id));
     const filteredLinks = links.filter(l => {
-        const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
-        const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+        const sourceId = l.source;
+        const targetId = l.target;
         return reachableNodes.has(sourceId) && reachableNodes.has(targetId);
     });
 

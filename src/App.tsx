@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import type {GraphData, GraphNode} from './types';
+import type {GraphData, GraphNode, ParsedData} from './types';
 import './App.css';
 
 import {buildGraphFromParsedData, extractAllNodeNames, filterGraph, getCurrentNetName, parseAllFiles} from './services/graphProcessor';
@@ -30,7 +30,7 @@ interface InputFiles {
 
 function App() {
     // STATI PER LA FASE 1: PARSING
-    const [parsedData, setParsedData] = useState<Record<string, any[]> | null>(null);
+    const [parsedData, setParsedData] = useState<ParsedData | null>(null);
     const [allNodeNames, setAllNodeNames] = useState<string[]>([]);
     const [isParsing, setIsParsing] = useState(false);
 
