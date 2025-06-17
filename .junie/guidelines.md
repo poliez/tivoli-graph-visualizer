@@ -165,6 +165,8 @@ To maintain code quality and consistency, all contributors are expected to follo
 * **Readability First**: Write code that is easy for other humans to understand. Code is read far more often than it is written.
 * **Consistency**: Follow the existing patterns and conventions in the codebase. If you introduce a new pattern, document the reasoning.
 * **KISS (Keep It Simple, Stupid)**: Avoid over-engineering. Choose the simplest solution that effectively solves the problem.
+* **Never commit commented-out code**: If code is no longer needed, remove it. Use version control to retrieve it if necessary.
+* **Never commit code that is not tested**: Ensure all new code is covered by tests before committing.
 
 ### TypeScript
 * **Avoid `any`**: Using `any` defeats the purpose of TypeScript. Use it only as an absolute last resort and add a `// eslint-disable-next-line @typescript-eslint/no-explicit-any` comment explaining why it was necessary. Prefer `unknown` for type-safe unknowns.
