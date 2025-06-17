@@ -46,6 +46,7 @@ function App() {
     const [error, setError] = useState<string | null>(null);
     const [files, setFiles] = useState<FileList | null>(null);
     const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
+    const [currentNetName, setCurrentNetName] = useState<string | null>(null);
 
     // FASE 1: L'utente carica i file, noi li parsiamo subito
     const handleFilesSelected = async (files: FileList) => {
@@ -54,6 +55,7 @@ function App() {
         setParsedData(null);
         setAllNodeNames([]);
         setFullGraphData(null); // Resetta tutto
+        setCurrentNetName(null); // Resetta il nome del Net
         setFiles(files); // Salva i file per uso futuro
 
         try {
@@ -70,8 +72,9 @@ function App() {
             const data = await parseAllFiles(classifiedFiles);
             setParsedData(data);
             setAllNodeNames(extractAllNodeNames(data));
-        } catch (err: any) {
-            setError(err.message || 'Errore durante il parsing dei file.');
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Errore durante il parsing dei file.';
+            setError(errorMessage);
         } finally {
             setIsParsing(false);
         }
@@ -84,12 +87,14 @@ function App() {
         setError(null);
 
         try {
-            const currentNetName = getCurrentNetName(files[0]);
-            const graph = buildGraphFromParsedData(parsedData, currentNetName, excludedNodes);
+            const netName = getCurrentNetName(files[0]);
+            setCurrentNetName(netName);
+            const graph = buildGraphFromParsedData(parsedData, netName, excludedNodes);
             setFullGraphData(graph);
             setFilteredGraphData(graph);
-        } catch (err: any) {
-            setError(err.message || 'Errore durante la generazione del grafo.');
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Errore durante la generazione del grafo.';
+            setError(errorMessage);
         } finally {
             setIsGenerating(false);
         }
@@ -106,7 +111,7 @@ function App() {
         <div className="app-container">
             <header className={`app-controls-header ${isHeaderCollapsed ? 'collapsed' : ''}`}>
                 <div className="header-title-row">
-                    <h1>Tivoli Workload Graph Visualizer</h1>
+                    <h1>Tivoli Workload Graph Visualizer {currentNetName && ` - Net: ${currentNetName}`}</h1>
                     <button 
                         className="collapse-toggle-btn" 
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
