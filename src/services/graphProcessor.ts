@@ -1,7 +1,17 @@
 // src/services/graphProcessor.ts
 
 import Papa from 'papaparse';
-import type {GraphData, GraphLink, GraphNode} from '../types';
+import type {
+    GraphData, 
+    GraphLink, 
+    GraphNode, 
+    OperationData, 
+    InternalRelationData, 
+    ExternalPredecessorData, 
+    ExternalSuccessorData, 
+    OperatorInstructionData,
+    ParsedData
+} from '../types';
 
 // Un'interfaccia per i file che ci aspettiamo
 interface InputFiles {
@@ -31,7 +41,7 @@ function parseCsv<T>(file: File): Promise<T[]> {
 }
 
 // NUOVA FUNZIONE DI SOLO PARSING
-export async function parseAllFiles(inputFiles: InputFiles): Promise<Record<string, any[]>> {
+export async function parseAllFiles(inputFiles: InputFiles): Promise<ParsedData> {
     const {operations, internalRels, externalPreds, externalSuccs, operatorInstructions} = inputFiles;
 
     if (!operations || !internalRels || !externalPreds || !externalSuccs) {
@@ -39,18 +49,20 @@ export async function parseAllFiles(inputFiles: InputFiles): Promise<Record<stri
     }
 
     const [opData, internalRelsData, externalPredsData, externalSuccsData, opInstructionsData] = await Promise.all([
-        parseCsv<any>(operations),
-        parseCsv<any>(internalRels),
-        parseCsv<any>(externalPreds),
-        parseCsv<any>(externalSuccs),
-        operatorInstructions ? parseCsv<any>(operatorInstructions) : Promise.resolve(null as unknown as any[]),
+        parseCsv<OperationData>(operations),
+        parseCsv<InternalRelationData>(internalRels),
+        parseCsv<ExternalPredecessorData>(externalPreds),
+        parseCsv<ExternalSuccessorData>(externalSuccs),
+        operatorInstructions 
+            ? parseCsv<OperatorInstructionData>(operatorInstructions) 
+            : Promise.resolve([] as OperatorInstructionData[]),
     ]);
 
     return {opData, internalRelsData, externalPredsData, externalSuccsData, opInstructionsData};
 }
 
 // NUOVA FUNZIONE per estrarre tutti i nomi unici dei job dai dati parsati
-export function extractAllNodeNames(parsedData: Record<string, any[]>): string[] {
+export function extractAllNodeNames(parsedData: ParsedData): string[] {
     const nodeNames = new Set<string>();
 
     parsedData.opData?.forEach(row => row['Nome Job'] && nodeNames.add(row['Nome Job']));
@@ -63,7 +75,7 @@ export function extractAllNodeNames(parsedData: Record<string, any[]>): string[]
 
 // processFilesToGraphData ORA ACCETTA I DATI GIÀ PARSATI
 export function buildGraphFromParsedData(
-    parsedData: Record<string, any[]>,
+    parsedData: ParsedData,
     currentNetName: string,
     exclusionSet: Set<string>
 ): GraphData {
