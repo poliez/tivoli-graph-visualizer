@@ -134,6 +134,140 @@ export function extractOperationTypes(parsedData: ParsedData): string[] {
 }
 
 // processFilesToGraphData ORA ACCETTA I DATI GIÀ PARSATI
+// Function to build a graph that only includes jobs with external predecessors and their external predecessors
+export function buildExternalPredecessorsGraph(
+    parsedData: ParsedData,
+    currentNetName: string,
+    exclusionSet: Set<string>,
+    selectedOperationTypes: Set<string> = new Set(),
+    includeUnknownTypes: boolean = false
+): GraphData {
+    const {
+        opData,
+        externalPredsData,
+        additionalExternalData
+    } = parsedData;
+
+    // Create a set of jobs that have external predecessors
+    const jobsWithExternalPreds = new Set<string>();
+    const externalPredecessors = new Map<string, Set<string>>(); // Map of job -> set of external predecessors
+
+    // Identify jobs with external predecessors
+    externalPredsData.forEach((row) => {
+        const sourceNet = row['Net Predecessore'];
+        // Ignore if it's an internal dependency masked as external
+        if (sourceNet === currentNetName) return;
+
+        const sourceName = row['Nome Job Predecessore'];
+        const target = row['Nome Job'];
+        if (exclusionSet.has(sourceName) || exclusionSet.has(target)) return;
+
+        // Add the job to the set of jobs with external predecessors
+        jobsWithExternalPreds.add(target);
+
+        // Track the external predecessors for each job
+        if (!externalPredecessors.has(target)) {
+            externalPredecessors.set(target, new Set<string>());
+        }
+        const externalPredSet = externalPredecessors.get(target);
+        if (externalPredSet) {
+            externalPredSet.add(`${sourceNet}/${sourceName}`);
+        }
+    });
+
+    // If no jobs have external predecessors, return an empty graph
+    if (jobsWithExternalPreds.size === 0) {
+        return { nodes: [], links: [] };
+    }
+
+    // Create nodes and links only for jobs with external predecessors and their external predecessors
+    const nodes = new Map<string, GraphNode>();
+    const links: GraphLink[] = [];
+
+    // Add nodes for jobs with external predecessors
+    opData.forEach((row) => {
+        const jobName = row['Nome Job'].trim();
+        if (!jobName || exclusionSet.has(jobName)) return;
+
+        // Skip if not in the set of jobs with external predecessors
+        if (!jobsWithExternalPreds.has(jobName)) return;
+
+        // Filter by operation type if there are selected types
+        if (selectedOperationTypes.size > 0 && 
+            !selectedOperationTypes.has(row['Tipo']) && 
+            !(includeUnknownTypes && !row['Tipo'])) return;
+
+        const node: GraphNode = {
+            id: jobName,
+            name: jobName,
+            type: 'internal',
+            metadata: {...row},
+        };
+        nodes.set(jobName, node);
+    });
+
+    // Add external predecessor nodes and links
+    externalPredsData.forEach((row) => {
+        const sourceNet = row['Net Predecessore'];
+        if (sourceNet === currentNetName) return;
+
+        const sourceName = row['Nome Job Predecessore'];
+        const target = row['Nome Job'];
+
+        // Skip if either node is excluded or if the target is not in our filtered set
+        if (exclusionSet.has(sourceName) || exclusionSet.has(target) || !nodes.has(target)) return;
+
+        // Add the external predecessor node
+        const sourceId = `${sourceNet}/${sourceName}`;
+        if (!nodes.has(sourceId)) {
+            // Look for additional details for this external node
+            const additionalDetails = findAdditionalDetails(sourceName, sourceNet, additionalExternalData);
+
+            nodes.set(sourceId, {
+                id: sourceId,
+                name: sourceName,
+                type: 'external',
+                hasAdditionalDetails: !!additionalDetails,
+                metadata: additionalDetails ? 
+                    { ...additionalDetails, 'Rete Esterna': sourceNet } : 
+                    { 'Rete Esterna': sourceNet }
+            });
+        }
+
+        // Add the link from external predecessor to the job
+        links.push({ source: sourceId, target });
+    });
+
+    return { nodes: Array.from(nodes.values()), links };
+}
+
+// Helper function to find additional details for an external node
+function findAdditionalDetails(
+    jobName: string, 
+    netName: string, 
+    additionalExternalData?: OperationData[][]
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Record<string, any> | null {
+    if (!additionalExternalData || additionalExternalData.length === 0) {
+        return null;
+    }
+
+    // Search in additional files
+    for (const dataArray of additionalExternalData) {
+        const jobDetails = dataArray.find(job => 
+            job['Nome Job'] === jobName && 
+            // Check if the file contains information about the Net or if it matches the specified Net
+            (job['Net'] === netName || !job['Net'])
+        );
+
+        if (jobDetails) {
+            return jobDetails;
+        }
+    }
+
+    return null;
+}
+
 export function buildGraphFromParsedData(
     parsedData: ParsedData,
     currentNetName: string,

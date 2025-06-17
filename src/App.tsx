@@ -4,6 +4,7 @@ import './App.css';
 
 import {
     buildGraphFromParsedData,
+    buildExternalPredecessorsGraph,
     extractAllNodeNames,
     extractOperationTypes,
     filterGraph,
@@ -51,6 +52,7 @@ function App() {
     const [fullGraphData, setFullGraphData] = useState<GraphData | null>(null);
     const [filteredGraphData, setFilteredGraphData] = useState<GraphData | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [showOnlyExternalPreds, setShowOnlyExternalPreds] = useState(false);
 
     // STATI PER L'INTERAZIONE
     const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
@@ -132,7 +134,12 @@ function App() {
             // @ts-expect-error non è possibile che i file siano null qui, ma TypeScript non lo sa
             const netName = getCurrentNetName(files[0]);
             setCurrentNetName(netName);
-            const graph = buildGraphFromParsedData(parsedData, netName, excludedNodes, selectedOperationTypes, includeUnknownTypes);
+
+            // Use the appropriate graph building function based on the selected mode
+            const graph = showOnlyExternalPreds
+                ? buildExternalPredecessorsGraph(parsedData, netName, excludedNodes, selectedOperationTypes, includeUnknownTypes)
+                : buildGraphFromParsedData(parsedData, netName, excludedNodes, selectedOperationTypes, includeUnknownTypes);
+
             setFullGraphData(graph);
             setFilteredGraphData(graph);
         } catch (err: unknown) {
@@ -220,7 +227,19 @@ function App() {
                                     onIncludeUnknownTypesChange={setIncludeUnknownTypes}
                                 />
 
-                                <h4>4. Genera Grafo</h4>
+                                <h4>4. Modalità di Visualizzazione</h4>
+                                <div className="visualization-mode">
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={showOnlyExternalPreds}
+                                            onChange={(e) => setShowOnlyExternalPreds(e.target.checked)}
+                                        />
+                                        Mostra solo job con predecessori esterni
+                                    </label>
+                                </div>
+
+                                <h4>5. Genera Grafo</h4>
                                 <button onClick={handleGenerateGraph} disabled={isGenerating}
                                         className="generate-button">
                                     {isGenerating ? 'Generazione...' : 'Genera Grafo'}
@@ -232,7 +251,7 @@ function App() {
                     {fullGraphData && (
                         <>
                             <div className="control-group">
-                                <h4>5. Filtra Grafo</h4>
+                                <h4>6. Filtra Grafo</h4>
                                 <SearchBar onSearch={setSearchTerm}/>
                             </div>
                         </>

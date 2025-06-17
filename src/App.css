@@ -377,6 +377,25 @@ body {
     margin: 0.5rem 0;
 }
 
+/* Stili per Visualization Mode */
+.visualization-mode {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+}
+
+.visualization-mode label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.visualization-mode input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
 /* Aggiorna i controlli principali */
 .control-group {
     display: flex;
