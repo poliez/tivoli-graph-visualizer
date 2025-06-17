@@ -209,3 +209,51 @@ body {
     align-self: flex-end; /* Allinea il pulsante in basso nel suo spazio flex */
     height: 100%;
 }
+
+/* Stili per ExclusionSelector */
+.exclusion-selector {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.5rem;
+    width: 250px;
+}
+
+.exclusion-selector input[type="text"] {
+    width: calc(100% - 1rem); /* 100% meno il padding */
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.exclusion-list {
+    max-height: 40px;
+    overflow-y: auto;
+    border-top: 1px solid #eee;
+}
+
+.exclusion-list .list-item {
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0;
+}
+
+.exclusion-list .list-item label {
+    margin-left: 0.5rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* Aggiorna i controlli principali */
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.control-group h4 {
+    margin: 0;
+    color: #333;
+    border-bottom: 2px solid steelblue;
+    padding-bottom: 0.25rem;
+}

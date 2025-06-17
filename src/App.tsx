@@ -1,13 +1,14 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useState} from 'react';
 import type {GraphData, GraphNode} from './types';
 import './App.css';
 
-import {filterGraph, processFilesToGraphData} from './services/graphProcessor';
+import {buildGraphFromParsedData, extractAllNodeNames, filterGraph, getCurrentNetName, parseAllFiles} from './services/graphProcessor';
 
 import FileUploader from './components/FileUploader';
 import GraphViewer from './components/GraphViewer';
 import NodeDetailPanel from './components/NodeDetailPanel';
 import SearchBar from './components/SearchBar';
+import ExclusionSelector from "./components/ExclusionSelector.tsx";
 
 // Definiamo una mappa per riconoscere i file
 const fileTypeKeywords: Record<string, keyof InputFiles> = {
@@ -28,68 +29,68 @@ interface InputFiles {
 }
 
 function App() {
-    const [selectedFiles, setSelectedFiles] = useState<InputFiles>({});
+    // STATI PER LA FASE 1: PARSING
+    const [parsedData, setParsedData] = useState<Record<string, any[]> | null>(null);
+    const [allNodeNames, setAllNodeNames] = useState<string[]>([]);
+    const [isParsing, setIsParsing] = useState(false);
+
+    // STATI PER LA FASE 2: CONFIGURAZIONE E GENERAZIONE
+    const [excludedNodes, setExcludedNodes] = useState<Set<string>>(new Set(['BNRUN']));
     const [fullGraphData, setFullGraphData] = useState<GraphData | null>(null);
     const [filteredGraphData, setFilteredGraphData] = useState<GraphData | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    // STATI PER L'INTERAZIONE
     const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-    const [searchTerm, setSearchTerm] = useState<string>('');
-    const [exclusionList, setExclusionList] = useState<string>('BNRUN'); // NUOVO stato, con un default utile
-
-    // Nuovo stato per gestire il feedback durante l'elaborazione
-    const [isProcessing, setIsProcessing] = useState<boolean>(false);
+    const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [files, setFiles] = useState<FileList | null>(null);
 
-    // Classifica i file quando vengono selezionati
-    const handleFilesSelected = (files: FileList) => {
-        const classifiedFiles: InputFiles = {};
-        Array.from(files).forEach(file => {
-            for (const keyword in fileTypeKeywords) {
-                if (file.name.includes(keyword)) {
-                    const fileType = fileTypeKeywords[keyword];
-                    classifiedFiles[fileType] = file;
-                    break; // Trovato, passa al prossimo file
-                }
-            }
-        });
-        setSelectedFiles(classifiedFiles);
-    };
-
-    // Controlla se i file necessari sono stati caricati
-    const areRequiredFilesPresent = useMemo(() => {
-        return selectedFiles.operations && selectedFiles.internalRels && selectedFiles.externalPreds && selectedFiles.externalSuccs;
-    }, [selectedFiles]);
-
-    const handleGenerateGraph = async () => {
-        if (!areRequiredFilesPresent) return;
-        setIsProcessing(true);
+    // FASE 1: L'utente carica i file, noi li parsiamo subito
+    const handleFilesSelected = async (files: FileList) => {
+        setIsParsing(true);
         setError(null);
+        setParsedData(null);
+        setAllNodeNames([]);
+        setFullGraphData(null); // Resetta tutto
+        setFiles(files); // Salva i file per uso futuro
+
         try {
-            // Passiamo la lista di esclusione al processor!
-            const graphData = await processFilesToGraphData(selectedFiles, exclusionList);
-            setFullGraphData(graphData);
-            setFilteredGraphData(graphData);
-            // NON resettiamo i file, l'utente potrebbe voler rigenerare con esclusioni diverse
+            const classifiedFiles: InputFiles = {}; // La tua logica di classificazione file va qui
+            Array.from(files).forEach(file => {
+                for (const keyword in fileTypeKeywords) {
+                    if (file.name.includes(keyword)) {
+                        const fileType = fileTypeKeywords[keyword];
+                        classifiedFiles[fileType] = file;
+                        break; // Trovato, passa al prossimo file
+                    }
+                }
+            });
+            const data = await parseAllFiles(classifiedFiles);
+            setParsedData(data);
+            setAllNodeNames(extractAllNodeNames(data));
         } catch (err: any) {
-            console.error(err);
-            setError(err.message || 'Errore durante l\'elaborazione dei file.');
+            setError(err.message || 'Errore durante il parsing dei file.');
         } finally {
-            setIsProcessing(false);
+            setIsParsing(false);
         }
     };
 
-    const handleFilesLoad = async (files: any) => {
-        setIsProcessing(true);
+    // FASE 2: L'utente ha configurato le esclusioni e clicca "Genera"
+    const handleGenerateGraph = () => {
+        if (!parsedData) return;
+        setIsGenerating(true);
         setError(null);
+
         try {
-            // Aspettiamo il risultato del nostro processor
-            const graphData = await processFilesToGraphData(files);
-            setFullGraphData(graphData);
-            setFilteredGraphData(graphData); // Inizialmente il grafo filtrato è quello completo
+            const currentNetName = getCurrentNetName(files[0]);
+            const graph = buildGraphFromParsedData(parsedData, currentNetName, excludedNodes);
+            setFullGraphData(graph);
+            setFilteredGraphData(graph);
         } catch (err: any) {
-            console.error(err);
-            setError('Errore durante l\'elaborazione dei file. Controlla la console per i dettagli.');
+            setError(err.message || 'Errore durante la generazione del grafo.');
         } finally {
-            setIsProcessing(false);
+            setIsGenerating(false);
         }
     };
 
@@ -105,31 +106,44 @@ function App() {
             <header className="app-controls-header">
                 <h1>Tivoli Workload Graph Visualizer</h1>
                 <div className="controls-container">
-                    <FileUploader onFilesSelected={handleFilesSelected} />
-
-                    {/* NUOVO: Textarea per la lista di esclusione */}
-                    <div className="textarea-control">
-                        <label htmlFor="exclusion-list">Nodi da Escludere</label>
-                        <textarea
-                            id="exclusion-list"
-                            value={exclusionList}
-                            onChange={(e) => setExclusionList(e.target.value)}
-                            placeholder="BNRUN, ALTRO_JOB, ..."
-                            rows={3}
-                        />
+                    <div className="control-group">
+                        <h4>1. Carica File</h4>
+                        <FileUploader onFilesSelected={handleFilesSelected}/>
                     </div>
 
-                    <button onClick={handleGenerateGraph} disabled={!areRequiredFilesPresent || isProcessing} className="generate-button">
-                        {isProcessing ? 'Elaborazione...' : 'Genera / Aggiorna Grafo'}
-                    </button>
+                    {isParsing && <p>Analisi file in corso...</p>}
 
-                    {fullGraphData && <SearchBar onSearch={setSearchTerm} />}
+                    {allNodeNames.length > 0 && (
+                        <>
+                            <div className="control-group">
+                                <h4>2. Configura Esclusioni</h4>
+                                <ExclusionSelector
+                                    allNodeNames={allNodeNames}
+                                    initialExclusions={excludedNodes}
+                                    onExclusionChange={setExcludedNodes}
+                                />
+                            </div>
+                            <div className="control-group">
+                                <h4>3. Genera Grafo</h4>
+                                <button onClick={handleGenerateGraph} disabled={isGenerating} className="generate-button">
+                                    {isGenerating ? 'Generazione...' : 'Genera Grafo'}
+                                </button>
+                            </div>
+                        </>
+                    )}
+
+                    {fullGraphData && (
+                        <div className="control-group">
+                            <h4>Filtra Grafo</h4>
+                            <SearchBar onSearch={setSearchTerm}/>
+                        </div>
+                    )}
                 </div>
             </header>
 
             <main className="app-main">
                 <div className="graph-panel">
-                    {isProcessing ? (
+                    {isParsing || isGenerating ? (
                         <div className="placeholder">Elaborazione in corso...</div>
                     ) : filteredGraphData ? (
                         <GraphViewer data={filteredGraphData} onNodeClick={setSelectedNode} searchTerm={searchTerm}/>

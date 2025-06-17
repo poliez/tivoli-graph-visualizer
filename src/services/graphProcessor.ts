@@ -13,9 +13,9 @@ interface InputFiles {
 }
 
 // NUOVA funzione helper per estrarre il nome del Net
-function getCurrentNetName(file: File): string | null {
+export function getCurrentNetName(file: File): string {
     const match = file.name.match(/NET - (.*?) -/);
-    return match ? match[1] : null;
+    return match[1];
 }
 
 // Funzione helper per "promisificare" il parsing di PapaParse
@@ -30,52 +30,53 @@ function parseCsv<T>(file: File): Promise<T[]> {
     });
 }
 
-// La funzione principale che orchestra tutto il processo
-export async function processFilesToGraphData(
-    inputFiles: InputFiles,
-    exclusionList: string
-): Promise<GraphData> {
+// NUOVA FUNZIONE DI SOLO PARSING
+export async function parseAllFiles(inputFiles: InputFiles): Promise<Record<string, any[]>> {
     const {operations, internalRels, externalPreds, externalSuccs, operatorInstructions} = inputFiles;
 
-    // Controllo di sicurezza: i file richiesti devono esistere
     if (!operations || !internalRels || !externalPreds || !externalSuccs) {
         throw new Error('Uno o più file richiesti non sono stati forniti.');
     }
 
-    // NUOVO: Estraiamo il nome del Net corrente. Usiamo il file Operazioni come riferimento.
-    const currentNetName = getCurrentNetName(inputFiles.operations!);
-    if (!currentNetName) {
-        throw new Error('Impossibile determinare il nome del Net corrente dal nome del file "Operazioni".');
-    }
-
-    // NUOVO: Creiamo un Set dalla stringa di esclusione per ricerche O(1)
-    const exclusionSet = new Set(
-        exclusionList.split(/[\n,]+/).map(name => name.trim()).filter(Boolean)
-    );
-
-    // PASSO 1: Parsing di tutti i file in parallelo per efficienza
-    const [
-        opData,
-        internalRelsData,
-        externalPredsData,
-        externalSuccsData,
-        opInstructionsData, // Sarà `undefined` se il file non è stato passato
-    ] = await Promise.all([
+    const [opData, internalRelsData, externalPredsData, externalSuccsData, opInstructionsData] = await Promise.all([
         parseCsv<any>(operations),
         parseCsv<any>(internalRels),
         parseCsv<any>(externalPreds),
         parseCsv<any>(externalSuccs),
-        operatorInstructions ? parseCsv<any>(operatorInstructions) : Promise.resolve(undefined),
+        operatorInstructions ? parseCsv<any>(operatorInstructions) : Promise.resolve(null as unknown as any[]),
     ]);
 
+    return {opData, internalRelsData, externalPredsData, externalSuccsData, opInstructionsData};
+}
+
+// NUOVA FUNZIONE per estrarre tutti i nomi unici dei job dai dati parsati
+export function extractAllNodeNames(parsedData: Record<string, any[]>): string[] {
+    const nodeNames = new Set<string>();
+
+    parsedData.opData?.forEach(row => row['Nome Job'] && nodeNames.add(row['Nome Job']));
+    parsedData.internalRelsData?.forEach(row => row['Nome Job Predecessore'] && nodeNames.add(row['Nome Job Predecessore']));
+    parsedData.externalPredsData?.forEach(row => row['Nome Job Predecessore'] && nodeNames.add(row['Nome Job Predecessore']));
+    parsedData.externalSuccsData?.forEach(row => row['Nome Job Successore'] && nodeNames.add(row['Nome Job Successore']));
+
+    return Array.from(nodeNames).sort();
+}
+
+// processFilesToGraphData ORA ACCETTA I DATI GIÀ PARSATI
+export function buildGraphFromParsedData(
+    parsedData: Record<string, any[]>,
+    currentNetName: string,
+    exclusionSet: Set<string>
+): GraphData {
+    const {opData, internalRelsData, externalPredsData, externalSuccsData, opInstructionsData} = parsedData;
+
+    // La logica da qui in poi è quasi identica a prima, ma usa i dati passati come argomento
     const nodes = new Map<string, GraphNode>();
     const links: GraphLink[] = [];
 
     // PASSO 2: Creazione dei nodi interni.
-    // ORA FILTRIAMO SUBITO i nodi da escludere.
     opData.forEach((row) => {
         const jobName = row['Nome Job'].trim();
-        if (!jobName || exclusionSet.has(jobName)) return; // <-- LOGICA DI ESCLUSIONE
+        if (!jobName || exclusionSet.has(jobName)) return;
 
         const node: GraphNode = {
             id: jobName,
@@ -89,7 +90,7 @@ export async function processFilesToGraphData(
     // PASSO 3: Arricchimento dei nodi con le "Operator Instructions" (se presenti)
     if (opInstructionsData) {
         opInstructionsData.forEach((row) => {
-            const jobName = row['Nome Job'];
+            const jobName = row['Nome Job'].trim();
             const existingNode = nodes.get(jobName);
             if (existingNode) {
                 existingNode.metadata['Istruzioni'] = row['Istruzioni'];
