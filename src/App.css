@@ -338,6 +338,7 @@ body {
 /* Aggiorna i controlli principali */
 .control-group {
     display: flex;
+    align-self: start;
     flex-direction: column;
     gap: 0.5rem;
 }
