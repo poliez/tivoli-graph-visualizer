@@ -49,6 +49,7 @@ const GraphViewer: React.FC<GraphViewerProps> = ({data, onNodeClick, searchTerm}
 
         // La simulazione fisica che posiziona nodi e archi
         const simulation = d3.forceSimulation(nodes)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .force('link', d3.forceLink<GraphNode, any>(links).id(d => d.id).distance(120))
             .force('charge', d3.forceManyBody().strength(-500)) // Forza di repulsione tra i nodi
             .force('center', d3.forceCenter(width / 2, height / 2)); // Forza che centra il grafo
@@ -76,7 +77,21 @@ const GraphViewer: React.FC<GraphViewerProps> = ({data, onNodeClick, searchTerm}
         // Aggiungiamo un cerchio a ogni gruppo-nodo
         node.append('circle')
             .attr('r', 15)
-            .attr('class', d => `${d.type} ${d.id === searchTerm ? 'highlighted' : ''}`)
+            .attr('class', d => {
+                let classes = d.type;
+
+                // Aggiungi classe per nodi esterni con dettagli aggiuntivi
+                if (d.type === 'external' && d.hasAdditionalDetails) {
+                    classes += ' has-details';
+                }
+
+                // Aggiungi classe per nodi evidenziati dalla ricerca
+                if (d.id === searchTerm) {
+                    classes += ' highlighted';
+                }
+
+                return classes;
+            })
 
         // Aggiungiamo l'etichetta di testo a ogni gruppo-nodo
         node.append('text')
@@ -85,6 +100,7 @@ const GraphViewer: React.FC<GraphViewerProps> = ({data, onNodeClick, searchTerm}
             .attr('y', 5);
 
         // Funzionalità di Drag & Drop per i nodi
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dragHandler = d3.drag<any, GraphNode>()
             .on('start', (event, d) => {
                 if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -101,6 +117,7 @@ const GraphViewer: React.FC<GraphViewerProps> = ({data, onNodeClick, searchTerm}
                 d.fy = null;
             });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dragHandler(node as any);
 
         // Funzionalità di Zoom e Pan sull'intero SVG

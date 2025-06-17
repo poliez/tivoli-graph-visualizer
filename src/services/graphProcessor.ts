@@ -20,6 +20,7 @@ interface InputFiles {
     externalPreds?: File;
     externalSuccs?: File;
     operatorInstructions?: File;
+    additionalExternalFiles?: File[]; // File aggiuntivi con dettagli sulle dipendenze esterne
 }
 
 // NUOVA funzione helper per estrarre il nome del Net
@@ -50,7 +51,8 @@ export async function parseAllFiles(inputFiles: InputFiles): Promise<ParsedData>
         internalRels,
         externalPreds,
         externalSuccs,
-        operatorInstructions
+        operatorInstructions,
+        additionalExternalFiles
     } = inputFiles;
 
     if (!operations || !internalRels || !externalPreds || !externalSuccs) {
@@ -67,7 +69,43 @@ export async function parseAllFiles(inputFiles: InputFiles): Promise<ParsedData>
             : Promise.resolve([] as OperatorInstructionData[]),
     ]);
 
-    return {opData, internalRelsData, externalPredsData, externalSuccsData, opInstructionsData};
+    // Parsing dei file aggiuntivi con dettagli sulle dipendenze esterne
+    let additionalExternalData: OperationData[][] = [];
+    if (additionalExternalFiles && additionalExternalFiles.length > 0) {
+        additionalExternalData = await Promise.all(
+            additionalExternalFiles.map(file => parseCsv<OperationData>(file))
+        );
+    }
+
+    return {
+        opData, 
+        internalRelsData, 
+        externalPredsData, 
+        externalSuccsData, 
+        opInstructionsData,
+        additionalExternalData: additionalExternalData.length > 0 ? additionalExternalData : undefined
+    };
+}
+
+// Funzione per aggiungere file aggiuntivi con dettagli sulle dipendenze esterne
+export async function parseAdditionalFiles(parsedData: ParsedData, files: FileList): Promise<ParsedData> {
+    if (!files || files.length === 0) {
+        return parsedData;
+    }
+
+    // Parsing dei file aggiuntivi
+    const additionalDataArrays = await Promise.all(
+        Array.from(files).map(file => parseCsv<OperationData>(file))
+    );
+
+    // Aggiungi i nuovi dati a quelli esistenti
+    const existingAdditionalData = parsedData.additionalExternalData || [];
+    const updatedAdditionalData = [...existingAdditionalData, ...additionalDataArrays];
+
+    return {
+        ...parsedData,
+        additionalExternalData: updatedAdditionalData
+    };
 }
 
 // NUOVA FUNZIONE per estrarre tutti i nomi unici dei job dai dati parsati
@@ -108,7 +146,8 @@ export function buildGraphFromParsedData(
         internalRelsData,
         externalPredsData,
         externalSuccsData,
-        opInstructionsData
+        opInstructionsData,
+        additionalExternalData
     } = parsedData;
 
     // La logica da qui in poi è quasi identica a prima, ma usa i dati passati come argomento
@@ -145,15 +184,44 @@ export function buildGraphFromParsedData(
         });
     }
 
+    // Funzione helper per verificare se un nodo esterno ha dettagli aggiuntivi
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const findAdditionalDetails = (jobName: string, netName: string): Record<string, any> | null => {
+        if (!additionalExternalData || additionalExternalData.length === 0) {
+            return null;
+        }
+
+        // Cerca nei file aggiuntivi
+        for (const dataArray of additionalExternalData) {
+            const jobDetails = dataArray.find(job => 
+                job['Nome Job'] === jobName && 
+                // Verifica se il file contiene informazioni sul Net o se corrisponde al Net specificato
+                (job['Net'] === netName || !job['Net'])
+            );
+
+            if (jobDetails) {
+                return jobDetails;
+            }
+        }
+
+        return null;
+    };
+
     // Funzione helper per creare nodi esterni se non esistono già
     const addExternalNode = (jobName: string, netName: string) => {
         const externalId = `${netName}/${jobName}`;
         if (!nodes.has(externalId)) {
+            // Cerca dettagli aggiuntivi per questo nodo esterno
+            const additionalDetails = findAdditionalDetails(jobName, netName);
+
             nodes.set(externalId, {
                 id: externalId,
                 name: jobName,
                 type: 'external',
-                metadata: {'Rete Esterna': netName}
+                hasAdditionalDetails: !!additionalDetails,
+                metadata: additionalDetails ? 
+                    { ...additionalDetails, 'Rete Esterna': netName } : 
+                    { 'Rete Esterna': netName }
             });
         }
         return externalId;

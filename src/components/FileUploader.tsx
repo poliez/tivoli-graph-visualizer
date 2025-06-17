@@ -2,9 +2,15 @@ import React, {useCallback, useState} from 'react';
 
 type FileUploaderProps = {
     onFilesSelected: (files: FileList) => void;
+    isLoading?: boolean;
+    label?: string;
 };
 
-const FileUploader: React.FC<FileUploaderProps> = ({onFilesSelected}) => {
+const FileUploader: React.FC<FileUploaderProps> = ({
+                                                       onFilesSelected,
+                                                       isLoading = false,
+                                                       label = "Trascina i file qui, o clicca per selezionarli."
+                                                   }) => {
     const [isDragOver, setIsDragOver] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,19 +47,20 @@ const FileUploader: React.FC<FileUploaderProps> = ({onFilesSelected}) => {
 
     return (
         <div
-            className={`file-drop-zone ${isDragOver ? 'drag-over' : ''}`}
+            className={`file-drop-zone ${isDragOver ? 'drag-over' : ''} ${isLoading ? 'loading' : ''}`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
         >
-            <p>Trascina i file qui, o clicca per selezionarli.</p>
+            {isLoading ? 'Caricamento in corso...' : label}
             <input
                 type="file"
                 multiple
                 accept=".csv"
                 onChange={handleFileChange}
                 className="file-input-hidden"
+                disabled={isLoading}
             />
         </div>
     );

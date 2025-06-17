@@ -2,7 +2,14 @@ import {useEffect, useState} from 'react';
 import type {GraphData, GraphNode, ParsedData} from './types';
 import './App.css';
 
-import {buildGraphFromParsedData, extractAllNodeNames, extractOperationTypes, filterGraph, getCurrentNetName, parseAllFiles} from './services/graphProcessor';
+import {
+    buildGraphFromParsedData,
+    extractAllNodeNames,
+    extractOperationTypes,
+    filterGraph,
+    getCurrentNetName,
+    parseAllFiles
+} from './services/graphProcessor';
 
 import FileUploader from './components/FileUploader';
 import GraphViewer from './components/GraphViewer';
@@ -27,6 +34,7 @@ interface InputFiles {
     externalPreds?: File;
     externalSuccs?: File;
     operatorInstructions?: File;
+    additionalExternalFiles?: File[]; // File aggiuntivi con dettagli sulle dipendenze esterne
 }
 
 function App() {
@@ -49,6 +57,8 @@ function App() {
     const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [files, setFiles] = useState<FileList | null>(null);
+    const [additionalFiles, setAdditionalFiles] = useState<FileList[]>([]);
+    const [isLoadingAdditionalFiles, setIsLoadingAdditionalFiles] = useState(false);
     const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
     const [currentNetName, setCurrentNetName] = useState<string | null>(null);
 
@@ -90,6 +100,28 @@ function App() {
         }
     };
 
+    // Funzione per caricare file aggiuntivi con dettagli sulle dipendenze esterne
+    const handleAdditionalFilesSelected = async (files: FileList) => {
+        if (!parsedData) return;
+        setIsLoadingAdditionalFiles(true);
+        setError(null);
+
+        try {
+            // Aggiungi i nuovi file alla lista dei file aggiuntivi
+            setAdditionalFiles(prevFiles => [...prevFiles, files]);
+
+            // Se il grafo è già stato generato, rigeneralo con i nuovi dati
+            if (fullGraphData) {
+                handleGenerateGraph();
+            }
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Errore durante il parsing dei file aggiuntivi.';
+            setError(errorMessage);
+        } finally {
+            setIsLoadingAdditionalFiles(false);
+        }
+    };
+
     // FASE 2: L'utente ha configurato le esclusioni e clicca "Genera"
     const handleGenerateGraph = () => {
         if (!parsedData) return;
@@ -123,8 +155,8 @@ function App() {
             <header className={`app-controls-header ${isHeaderCollapsed ? 'collapsed' : ''}`}>
                 <div className="header-title-row">
                     <h1>Tivoli Workload Graph Visualizer {currentNetName && ` - Net: ${currentNetName}`}</h1>
-                    <button 
-                        className="collapse-toggle-btn" 
+                    <button
+                        className="collapse-toggle-btn"
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
                     >
                         {isHeaderCollapsed ? '▼' : '▲'}
@@ -134,6 +166,36 @@ function App() {
                     <div className="control-group">
                         <h4>1. Carica File</h4>
                         <FileUploader onFilesSelected={handleFilesSelected}/>
+                        {files !== null && files.length > 0 && (
+                            <div className="additional-files-info">
+                                <p>File caricati: {files.length}</p>
+                                <ul>
+                                    {Array.from(files).map((file, index) => (
+                                        <li key={index}>{file.name}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                        <h4> 1.1 Carica Dettagli Aggiuntivi (Opzionale)</h4>
+                        <FileUploader
+                            onFilesSelected={handleAdditionalFilesSelected}
+                            isLoading={isLoadingAdditionalFiles}
+                            label="Carica file con dettagli aggiuntivi per dipendenze esterne"
+                        />
+                        {additionalFiles.length > 0 && (
+                            <div className="additional-files-info">
+                                <p>File aggiuntivi caricati: {additionalFiles.length}</p>
+                                <ul>
+                                    {additionalFiles.map((fileList, index) => (
+                                        <li key={index}>
+                                            {Array.from(fileList).map((file, fileIndex) => (
+                                                <span key={fileIndex}>{file.name}</span>
+                                            )).reduce((prev, curr) => [prev, ', ', curr])}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
 
                     {isParsing && <p>Analisi file in corso...</p>}
@@ -157,10 +219,10 @@ function App() {
                                     includeUnknownTypes={includeUnknownTypes}
                                     onIncludeUnknownTypesChange={setIncludeUnknownTypes}
                                 />
-                            </div>
-                            <div className="control-group">
+
                                 <h4>4. Genera Grafo</h4>
-                                <button onClick={handleGenerateGraph} disabled={isGenerating} className="generate-button">
+                                <button onClick={handleGenerateGraph} disabled={isGenerating}
+                                        className="generate-button">
                                     {isGenerating ? 'Generazione...' : 'Genera Grafo'}
                                 </button>
                             </div>
@@ -168,10 +230,12 @@ function App() {
                     )}
 
                     {fullGraphData && (
-                        <div className="control-group">
-                            <h4>Filtra Grafo</h4>
-                            <SearchBar onSearch={setSearchTerm}/>
-                        </div>
+                        <>
+                            <div className="control-group">
+                                <h4>5. Filtra Grafo</h4>
+                                <SearchBar onSearch={setSearchTerm}/>
+                            </div>
+                        </>
                     )}
                 </div>
             </header>
@@ -191,7 +255,9 @@ function App() {
 
                 {/* Il pannello dei dettagli ora è un overlay controllato dallo stato `selectedNode` */}
                 <div className={`node-detail-sidebar ${selectedNode ? 'open' : ''}`}>
-                    {selectedNode && filteredGraphData && <NodeDetailPanel node={selectedNode} graphData={filteredGraphData} onClose={() => setSelectedNode(null)}/>}
+                    {selectedNode && filteredGraphData &&
+                        <NodeDetailPanel node={selectedNode} graphData={filteredGraphData}
+                                         onClose={() => setSelectedNode(null)}/>}
                 </div>
             </main>
         </div>

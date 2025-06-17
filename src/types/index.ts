@@ -45,6 +45,7 @@ interface ParsedData {
     externalPredsData: ExternalPredecessorData[];
     externalSuccsData: ExternalSuccessorData[];
     opInstructionsData?: OperatorInstructionData[];
+    additionalExternalData?: OperationData[][]; // Array di array di dati aggiuntivi per le dipendenze esterne
 }
 
 // L'interfaccia per i nostri nodi.
@@ -54,6 +55,7 @@ interface GraphNode extends d3.SimulationNodeDatum {
     id: string; // ID univoco, es: "BR401_DUMMY_JOB" o "EXT_NET/EXT_JOB"
     name: string; // Il nome visualizzato, es: "DUMMY_JOB"
     type: 'internal' | 'external';
+    hasAdditionalDetails?: boolean; // Indica se il nodo ha dettagli aggiuntivi
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metadata: Record<string, any>; // Un contenitore per tutte le altre info che può contenere campi dinamici dai CSV
 }

@@ -86,6 +86,7 @@ body {
 
 /* Zona di Upload */
 .file-drop-zone {
+    max-height: 5vh;
     border: 2px dashed #ccc;
     border-radius: 8px;
     padding: 1rem;
@@ -99,6 +100,12 @@ body {
     background-color: #e8f0fe;
 }
 
+.file-drop-zone.loading {
+    border-color: #ccc;
+    background-color: rgba(204, 204, 204, 0.2);
+    cursor: not-allowed;
+}
+
 .file-input-hidden {
     position: absolute;
     top: 0;
@@ -107,6 +114,16 @@ body {
     height: 100%;
     opacity: 0;
     cursor: pointer;
+}
+
+.file-input-hidden:disabled {
+    cursor: not-allowed;
+}
+
+.additional-files-info {
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: #555;
 }
 
 /* Grafo e Placeholder */
@@ -210,6 +227,10 @@ body {
     fill: #888;
 }
 
+.nodes circle.external.has-details {
+    fill: #4CAF50; /* Verde per i nodi esterni con dettagli aggiuntivi */
+}
+
 .nodes text {
     font-family: sans-serif;
     font-size: 10px;
@@ -248,6 +269,7 @@ body {
 .generate-button {
     align-self: flex-end; /* Allinea il pulsante in basso nel suo spazio flex */
     height: 100%;
+    width: 100%;
 }
 
 /* Stili per ExclusionSelector */
@@ -378,7 +400,6 @@ body {
     list-style-type: none;
     padding: 0;
     margin: 0.5rem 0 0 0;
-    max-height: 200px;
     overflow-y: auto;
 }
 
