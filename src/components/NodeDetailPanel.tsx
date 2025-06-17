@@ -41,13 +41,26 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({node, graphData, onClo
                 {externalDependencies.length > 0 && (
                     <div className="external-dependencies">
                         <h4>Dipendenze Esterne</h4>
-                        <ul className="dependency-list">
-                            {externalDependencies.map(dep => (
-                                <li key={dep.id} className="dependency-item">
-                                    {dep.name}
-                                </li>
-                            ))}
-                        </ul>
+                        <table className="dependency-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome Job</th>
+                                    <th>Descrizione</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {externalDependencies.map(dep => (
+                                    <tr key={dep.id} className="dependency-item">
+                                        <td className="dependency-name">{dep.name}</td>
+                                        <td className="dependency-description">
+                                            {dep.hasAdditionalDetails && dep.metadata['Descrizione'] 
+                                                ? dep.metadata['Descrizione'] 
+                                                : 'N/D'}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 )}
             </div>
