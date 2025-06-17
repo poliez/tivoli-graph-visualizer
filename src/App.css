@@ -40,3 +40,16 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Aggiungi in fondo a src/App.css */
+.app-container { display: flex; flex-direction: column; height: 100vh; }
+.app-header { padding: 1rem; background-color: #282c34; color: white; text-align: center; }
+.app-main { display: flex; flex-grow: 1; overflow: hidden; }
+.controls-panel { width: 350px; padding: 1rem; border-right: 1px solid #ccc; overflow-y: auto; }
+.graph-panel { flex-grow: 1; position: relative; }
+.placeholder { display: flex; justify-content: center; align-items: center; height: 100%; color: #888; }
+.file-uploader-form .file-input-group { margin-bottom: 1rem; }
+.file-uploader-form label { display: block; margin-bottom: 0.25rem; font-size: 0.9rem; }
+.file-uploader-form input { width: 100%; }
+.file-uploader-form button { width: 100%; padding: 0.75rem; font-size: 1rem; }
+.error-message { color: red; margin-top: 1rem; }

@@ -1,33 +1,42 @@
-// src/App.tsx
+// src/App.tsx (versione aggiornata)
 
 import {useState} from 'react';
 import type {GraphData, GraphNode} from './types';
 import './App.css';
 
-// Importiamo i componenti che abbiamo creato (per ora vuoti)
+// Importa la nostra nuova funzione di processing
+import {processFilesToGraphData} from './services/graphProcessor';
+
 import FileUploader from './components/FileUploader';
 import GraphViewer from './components/GraphViewer';
 import NodeDetailPanel from './components/NodeDetailPanel';
 import SearchBar from './components/SearchBar';
 
 function App() {
-    // Stato per i dati completi del grafo, non verrà mai modificato dopo il parsing
     const [fullGraphData, setFullGraphData] = useState<GraphData | null>(null);
-
-    // Stato per i dati filtrati da mostrare (inizialmente uguali a quelli completi)
     const [filteredGraphData, setFilteredGraphData] = useState<GraphData | null>(null);
-
-    // Stato per il nodo attualmente selezionato con un click
     const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-
-    // Stato per il termine di ricerca
     const [searchTerm, setSearchTerm] = useState<string>('');
 
-    const handleFilesLoad = (files: File[]) => {
-        // QUI, nel prossimo passo, chiameremo il nostro graphProcessor
-        console.log('File caricati, pronto per il parsing:', files);
-        // setFullGraphData(...)
-        // setFilteredGraphData(...)
+    // Nuovo stato per gestire il feedback durante l'elaborazione
+    const [isProcessing, setIsProcessing] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // La funzione ora è asincrona
+    const handleFilesLoad = async (files: any) => {
+        setIsProcessing(true);
+        setError(null);
+        try {
+            // Aspettiamo il risultato del nostro processor
+            const graphData = await processFilesToGraphData(files);
+            setFullGraphData(graphData);
+            setFilteredGraphData(graphData); // Inizialmente il grafo filtrato è quello completo
+        } catch (err: any) {
+            console.error(err);
+            setError('Errore durante l\'elaborazione dei file. Controlla la console per i dettagli.');
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     return (
@@ -37,16 +46,19 @@ function App() {
             </header>
             <main className="app-main">
                 <div className="controls-panel">
-                    <FileUploader onFilesLoaded={handleFilesLoad}/>
+                    <FileUploader onFilesLoaded={handleFilesLoad} isProcessing={isProcessing}/>
+                    {error && <div className="error-message">{error}</div>}
                     {fullGraphData && <SearchBar onSearch={setSearchTerm}/>}
                     {selectedNode && <NodeDetailPanel node={selectedNode}/>}
                 </div>
                 <div className="graph-panel">
-                    {filteredGraphData ? (
+                    {isProcessing ? (
+                        <div className="placeholder">Elaborazione in corso...</div>
+                    ) : filteredGraphData ? (
                         <GraphViewer data={filteredGraphData} onNodeClick={setSelectedNode}/>
                     ) : (
                         <div className="placeholder">
-                            Carica i file CSV per generare il grafo.
+                            {error ? 'Processo fallito.' : 'Carica i file CSV per generare il grafo.'}
                         </div>
                     )}
                 </div>
