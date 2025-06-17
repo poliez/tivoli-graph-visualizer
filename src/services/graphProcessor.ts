@@ -25,6 +25,9 @@ interface InputFiles {
 // NUOVA funzione helper per estrarre il nome del Net
 export function getCurrentNetName(file: File): string {
     const match = file.name.match(/NET - (.*?) -/);
+    if (!match) {
+        throw new Error(`Impossibile estrarre il nome del Net dal file: ${file.name}`);
+    }
     return match[1];
 }
 
@@ -219,14 +222,22 @@ export function filterGraph(fullGraph: GraphData, searchId: string): GraphData {
     const predecessors = new Map<string, string[]>();
 
     links.forEach(({source, target}) => {
-        const sourceId = typeof source === 'object' ? source.id : source;
-        const targetId = typeof target === 'object' ? target.id : target;
+        const sourceId = source;
+        const targetId = target;
 
         if (!successors.has(sourceId)) successors.set(sourceId, []);
-        successors.get(sourceId)!.push(targetId);
+        const sourceSuccessors = successors.get(sourceId);
+        if (!sourceSuccessors) {
+            throw new Error(`Impossibile trovare i successori per il nodo: ${sourceId}`);
+        }
+        sourceSuccessors.push(targetId);
 
         if (!predecessors.has(targetId)) predecessors.set(targetId, []);
-        predecessors.get(targetId)!.push(sourceId);
+        const targetPredecessors = predecessors.get(targetId);
+        if (!targetPredecessors) {
+            throw new Error(`Impossibile trovare i predecessori per il nodo: ${targetId}`);
+        }
+        targetPredecessors.push(sourceId);
     });
 
     // Controlla se il nodo cercato esiste

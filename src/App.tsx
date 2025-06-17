@@ -97,6 +97,7 @@ function App() {
         setError(null);
 
         try {
+            // @ts-expect-error non è possibile che i file siano null qui, ma TypeScript non lo sa
             const netName = getCurrentNetName(files[0]);
             setCurrentNetName(netName);
             const graph = buildGraphFromParsedData(parsedData, netName, excludedNodes, selectedOperationTypes, includeUnknownTypes);
