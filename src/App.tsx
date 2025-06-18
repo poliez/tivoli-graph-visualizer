@@ -60,6 +60,7 @@ function App() {
     const [error, setError] = useState<string | null>(null);
     const [files, setFiles] = useState<FileList | null>(null);
     const [additionalFiles, setAdditionalFiles] = useState<FileList[]>([]);
+    const [inputFiles, setInputFiles] = useState<InputFiles | null>(null);
     const [isLoadingAdditionalFiles, setIsLoadingAdditionalFiles] = useState(false);
     const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
     const [currentNetName, setCurrentNetName] = useState<string | null>(null);
@@ -76,7 +77,7 @@ function App() {
         setFiles(files); // Salva i file per uso futuro
 
         try {
-            const classifiedFiles: InputFiles = {}; // La tua logica di classificazione file va qui
+            const classifiedFiles: InputFiles = {};
             Array.from(files).forEach(file => {
                 for (const keyword in fileTypeKeywords) {
                     if (file.name.includes(keyword)) {
@@ -88,6 +89,7 @@ function App() {
             });
             const data = await parseAllFiles(classifiedFiles);
             setParsedData(data);
+            setInputFiles(classifiedFiles);
             setAllNodeNames(extractAllNodeNames(data));
 
             // Estrai i tipi di operazione e inizializza il set dei tipi selezionati
@@ -103,14 +105,29 @@ function App() {
     };
 
     // Funzione per caricare file aggiuntivi con dettagli sulle dipendenze esterne
-    const handleAdditionalFilesSelected = async (files: FileList) => {
+    const handleAdditionalFilesSelected = async (newAdditionalFiles: FileList) => {
         if (!parsedData) return;
         setIsLoadingAdditionalFiles(true);
         setError(null);
 
         try {
             // Aggiungi i nuovi file alla lista dei file aggiuntivi
-            setAdditionalFiles(prevFiles => [...prevFiles, files]);
+            setAdditionalFiles(prevFiles => [...prevFiles, newAdditionalFiles]);
+
+            const classifiedFiles: InputFiles = inputFiles || {};
+            Array.from(newAdditionalFiles).forEach(file => {
+                for (const keyword in fileTypeKeywords) {
+                    if (file.name.includes(keyword)) {
+                        classifiedFiles.additionalExternalFiles = [...(classifiedFiles.additionalExternalFiles || []), file];
+                        break; // Trovato, passa al prossimo file
+                    }
+                }
+            });
+
+            const data = await parseAllFiles(classifiedFiles);
+            setParsedData(data);
+            setInputFiles(classifiedFiles);
+            setAllNodeNames(extractAllNodeNames(data));
 
             // Se il grafo è già stato generato, rigeneralo con i nuovi dati
             if (fullGraphData) {
