@@ -38,6 +38,7 @@ function parseCsv<T>(file: File): Promise<T[]> {
         Papa.parse<T>(file, {
             header: true, // Tratta la prima riga come header
             skipEmptyLines: true,
+            transform: (value) => typeof value === 'string' ? value.trim() : value,
             complete: (results) => resolve(results.data),
             error: (error) => reject(error),
         });
@@ -186,7 +187,7 @@ export function buildExternalPredecessorsGraph(
 
     // Add nodes for jobs with external predecessors
     opData.forEach((row) => {
-        const jobName = row['Nome Job'].trim();
+        const jobName = row['Nome Job'];
         if (!jobName || exclusionSet.has(jobName)) return;
 
         // Skip if not in the set of jobs with external predecessors
@@ -290,7 +291,7 @@ export function buildGraphFromParsedData(
 
     // PASSO 2: Creazione dei nodi interni.
     opData.forEach((row) => {
-        const jobName = row['Nome Job'].trim();
+        const jobName = row['Nome Job'];
         if (!jobName || exclusionSet.has(jobName)) return;
 
         // Filtra per tipo di operazione se ci sono tipi selezionati
@@ -310,7 +311,7 @@ export function buildGraphFromParsedData(
     // PASSO 3: Arricchimento dei nodi con le "Operator Instructions" (se presenti)
     if (opInstructionsData) {
         opInstructionsData.forEach((row) => {
-            const jobName = row['Nome Job'].trim();
+            const jobName = row['Nome Job'];
             const existingNode = nodes.get(jobName);
             if (existingNode) {
                 existingNode.metadata['Istruzioni'] = row['Istruzioni'];
