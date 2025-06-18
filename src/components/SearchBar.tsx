@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import styles from './SearchBar.module.css';
 
 type SearchBarProps = {
     onSearch: (term: string) => void;
@@ -21,7 +22,7 @@ const SearchBar: React.FC<SearchBarProps> = ({onSearch}) => {
     }, [value, onSearch]);
 
     return (
-        <div className="search-bar">
+        <div className={styles.searchBar}>
             <label htmlFor="job-search" style={{marginRight: '10px'}}>Cerca e Isola Job</label>
             <input
                 id="job-search"

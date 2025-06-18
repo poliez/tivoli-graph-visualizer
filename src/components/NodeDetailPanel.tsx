@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './NodeDetailPanel.module.css';
 import type {GraphNode, GraphData} from '../types';
 
 type NodeDetailPanelProps = {
@@ -23,12 +24,12 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({node, graphData, onClo
     );
 
     return (
-        <div className="node-detail-panel">
-            <div className="panel-header">
+        <div className={styles.nodeDetailPanel}>
+            <div className={styles.panelHeader}>
                 <h3>Dettagli: {node.name}</h3>
-                <button onClick={onClose} className="close-btn">×</button>
+                <button onClick={onClose} className={styles.closeBtn}>×</button>
             </div>
-            <div className="panel-content">
+            <div className={styles.panelContent}>
                 <dl>
                     {metadataToShow.map(([key, value]) => (
                         <React.Fragment key={key}>
@@ -39,9 +40,9 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({node, graphData, onClo
                 </dl>
 
                 {externalDependencies.length > 0 && (
-                    <div className="external-dependencies">
+                    <div className={styles.externalDependencies}>
                         <h4>Dipendenze Esterne</h4>
-                        <table className="dependency-table">
+                        <table className={styles.dependencyTable}>
                             <thead>
                                 <tr>
                                     <th>Nome Job</th>
@@ -50,9 +51,9 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({node, graphData, onClo
                             </thead>
                             <tbody>
                                 {externalDependencies.map(dep => (
-                                    <tr key={dep.id} className="dependency-item">
-                                        <td className="dependency-name">{dep.name}</td>
-                                        <td className="dependency-description">
+                                    <tr key={dep.id} className={styles.dependencyItem}>
+                                        <td className={styles.dependencyName}>{dep.name}</td>
+                                        <td className={styles.dependencyDescription}>
                                             {dep.hasAdditionalDetails && dep.metadata['Descrizione'] 
                                                 ? dep.metadata['Descrizione'] 
                                                 : 'N/D'}

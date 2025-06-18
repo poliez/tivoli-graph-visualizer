@@ -1,6 +1,7 @@
 // src/components/ExclusionSelector.tsx
 
 import React, {useMemo, useState} from 'react';
+import styles from './ExclusionSelector.module.css';
 
 type ExclusionSelectorProps = {
     allNodeNames: string[];
@@ -50,7 +51,7 @@ const ExclusionSelector: React.FC<ExclusionSelectorProps> = ({allNodeNames, init
     };
 
     return (
-        <div className="exclusion-selector">
+        <div className={styles.exclusionSelector}>
             <label htmlFor="exclusion-filter">Filtra e Seleziona Nodi da Escludere</label>
             <input
                 id="exclusion-filter"
@@ -59,25 +60,25 @@ const ExclusionSelector: React.FC<ExclusionSelectorProps> = ({allNodeNames, init
                 value={filterText}
                 onChange={(e) => setFilterText(e.target.value)}
             />
-            <div className="filter-actions">
-                <button 
-                    className="select-button" 
+            <div className={styles.filterActions}>
+                <button
+                    className={styles.selectButton}
                     onClick={handleExcludeAllFiltered}
                     title="Escludi tutti i risultati filtrati"
                 >
                     Escludi Tutti
                 </button>
-                <button 
-                    className="select-button" 
+                <button
+                    className={styles.selectButton}
                     onClick={handleIncludeAllFiltered}
                     title="Includi tutti i risultati filtrati"
                 >
                     Includi Tutti
                 </button>
             </div>
-            <div className="exclusion-list">
+            <div className={styles.exclusionList}>
                 {filteredList.map(nodeName => (
-                    <div key={nodeName} className="list-item">
+                    <div key={nodeName} className={styles.listItem}>
                         <input
                             type="checkbox"
                             id={`exclude-${nodeName}`}

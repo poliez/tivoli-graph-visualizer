@@ -1,4 +1,5 @@
 import React, {useCallback, useState} from 'react';
+import styles from './FileUploader.module.css';
 
 type FileUploaderProps = {
     onFilesSelected: (files: FileList) => void;
@@ -47,7 +48,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
 
     return (
         <div
-            className={`file-drop-zone ${isDragOver ? 'drag-over' : ''} ${isLoading ? 'loading' : ''}`}
+            className={`${styles.fileDropZone} ${isDragOver ? styles.dragOver : ''} ${isLoading ? styles.loading : ''}`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
@@ -60,7 +61,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                 multiple
                 accept=".csv"
                 onChange={handleFileChange}
-                className="file-input-hidden"
+                className={styles.fileInputHidden}
                 disabled={isLoading}
             />
         </div>

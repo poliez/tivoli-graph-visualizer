@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './OperationTypeFilter.module.css';
 
 type OperationTypeFilterProps = {
     operationTypes: string[];
@@ -40,20 +41,20 @@ const OperationTypeFilter: React.FC<OperationTypeFilterProps> = ({
     };
 
     return (
-        <div className="operation-type-filter">
-            <div className="filter-header">
+        <div className={styles.operationTypeFilter}>
+            <div className={styles.filterHeader}>
                 <label>Filtra per Tipo di Operazione</label>
-                <div className="filter-actions">
-                    <button type="button" onClick={handleSelectAll} className="select-button">
+                <div className={styles.filterActions}>
+                    <button type="button" onClick={handleSelectAll} className={styles.selectButton}>
                         Seleziona Tutti
                     </button>
-                    <button type="button" onClick={handleDeselectAll} className="select-button">
+                    <button type="button" onClick={handleDeselectAll} className={styles.selectButton}>
                         Deseleziona Tutti
                     </button>
                 </div>
             </div>
-            <div className="type-list">
-                <div className="unknown-type-item">
+            <div className={styles.typeList}>
+                <div className={styles.unknownTypeItem}>
                     <input
                         type="checkbox"
                         id="include-unknown-types"
@@ -62,9 +63,9 @@ const OperationTypeFilter: React.FC<OperationTypeFilterProps> = ({
                     />
                     <label htmlFor="include-unknown-types">Includi Tipi Sconosciuti</label>
                 </div>
-                <div className="type-separator"></div>
+                <div className={styles.typeSeparator}></div>
                 {operationTypes.map(type => (
-                    <div key={type} className="type-item">
+                    <div key={type} className={styles.typeItem}>
                         <input
                             type="checkbox"
                             id={`type-${type}`}

@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from 'react';
 import * as d3 from 'd3';
+import './GraphViewer.module.css'; // Import CSS module for potential future use
 import type {GraphData, GraphNode} from '../types';
 
 type GraphViewerProps = {

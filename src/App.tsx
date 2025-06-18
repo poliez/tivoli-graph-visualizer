@@ -176,11 +176,11 @@ function App() {
 
 
     return (
-        <div className="app-container">
-            <header className={`app-controls-header ${isHeaderCollapsed ? 'collapsed' : ''}`}>
-                <div className="header-title-row">
+        <div className="App__container">
+            <header className={`App__header ${isHeaderCollapsed ? 'App__header--collapsed' : ''}`}>
+                <div className="App__headerTitleRow">
                     <h1 style={{marginRight: '10px'}}>Tivoli Workload Graph
-                        Visualizer {currentNetName && ` - Net: ${currentNetName}`}</h1>
+                        Visualizer {currentNetName && <span className="App__netName"> - Net: {currentNetName}</span>}</h1>
 
                     {fullGraphData && (
                         <>
@@ -189,18 +189,18 @@ function App() {
                     )}
 
                     <button
-                        className="collapse-toggle-btn"
+                        className="App__collapseToggleBtn"
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
                     >
                         {isHeaderCollapsed ? '▼' : '▲'}
                     </button>
                 </div>
-                <div className="controls-container">
-                    <div className="control-group">
+                <div className="App__controlsContainer">
+                    <div className="ControlGroup">
                         <h4>1. Carica File</h4>
                         <FileUploader onFilesSelected={handleFilesSelected}/>
                         {files !== null && files.length > 0 && (
-                            <div className="additional-files-info">
+                            <div className="App__additionalFilesInfo">
                                 <p>File caricati: {files.length}</p>
                                 <ul>
                                     {Array.from(files).map((file, index) => (
@@ -216,7 +216,7 @@ function App() {
                             label="Carica file con dettagli aggiuntivi per dipendenze esterne"
                         />
                         {additionalFiles.length > 0 && (
-                            <div className="additional-files-info">
+                            <div className="App__additionalFilesInfo">
                                 <p>File aggiuntivi caricati: {additionalFiles.length}</p>
                                 <ul>
                                     {additionalFiles.map((fileList, index) => (
@@ -236,7 +236,7 @@ function App() {
 
                     {allNodeNames.length > 0 && (
                         <>
-                            <div className="control-group">
+                            <div className="ControlGroup">
                                 <h4>2. Configura Esclusioni</h4>
                                 <ExclusionSelector
                                     allNodeNames={allNodeNames}
@@ -244,7 +244,7 @@ function App() {
                                     onExclusionChange={setExcludedNodes}
                                 />
                             </div>
-                            <div className="control-group">
+                            <div className="ControlGroup">
                                 <h4>3. Filtra per Tipo</h4>
                                 <OperationTypeFilter
                                     operationTypes={operationTypes}
@@ -255,7 +255,7 @@ function App() {
                                 />
 
                                 <h4>4. Modalità di Visualizzazione</h4>
-                                <div className="visualization-mode">
+                                <div className="VisualizationMode">
                                     <label>
                                         <input
                                             type="checkbox"
@@ -266,10 +266,10 @@ function App() {
                                     </label>
                                 </div>
                             </div>
-                            <div className="control-group">
+                            <div className="ControlGroup">
                                 <h4>5. Genera Grafo</h4>
                                 <button onClick={handleGenerateGraph} disabled={isGenerating}
-                                        className="generate-button">
+                                        className="App__generateButton">
                                     {isGenerating ? 'Generazione...' : 'Genera Grafo'}
                                 </button>
                             </div>
@@ -278,21 +278,21 @@ function App() {
                 </div>
             </header>
 
-            <main className="app-main">
-                <div className="graph-panel">
+            <main className="App__main">
+                <div className="App__graphPanel">
                     {isParsing || isGenerating ? (
-                        <div className="placeholder">Elaborazione in corso...</div>
+                        <div className="App__placeholder">Elaborazione in corso...</div>
                     ) : filteredGraphData ? (
                         <GraphViewer data={filteredGraphData} onNodeClick={setSelectedNode} searchTerm={searchTerm}/>
                     ) : (
-                        <div className="placeholder">
+                        <div className="App__placeholder">
                             {error ? `Errore: ${error}` : 'Carica i file e clicca "Genera Grafo"'}
                         </div>
                     )}
                 </div>
 
                 {/* Il pannello dei dettagli ora è un overlay controllato dallo stato `selectedNode` */}
-                <div className={`node-detail-sidebar ${selectedNode ? 'open' : ''}`}>
+                <div className={`App__nodeDetailSidebar ${selectedNode ? 'App__nodeDetailSidebar--open' : ''}`}>
                     {selectedNode && filteredGraphData &&
                         <NodeDetailPanel node={selectedNode} graphData={filteredGraphData}
                                          onClose={() => setSelectedNode(null)}/>}

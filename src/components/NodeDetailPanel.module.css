@@ -1,0 +1,96 @@
+.node-detail-panel {
+    padding: 1.5rem;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    word-break: break-all;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.panel-content dl {
+    margin: 1rem 0 0 0;
+}
+
+.panel-content dt {
+    font-weight: bold;
+    color: #555;
+    margin-top: 1rem;
+}
+
+.panel-content dd {
+    margin-left: 0;
+    color: #333;
+    word-wrap: break-word;
+    background-color: #f4f4f4;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.external-dependencies {
+    margin-top: 1rem;
+}
+
+/* Note: .control-group h4 is similar, this h4 is specific to external-dependencies within NodeDetailPanel */
+.external-dependencies h4 {
+    margin: 0 0 0.5rem 0; /* Adjusted margin for spacing */
+    color: #333;
+    border-bottom: 2px solid steelblue;
+    padding-bottom: 0.25rem;
+}
+
+.dependency-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+    overflow-y: auto; /* Assuming it might need scroll if list is long */
+}
+
+.dependency-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+}
+
+.dependency-table th {
+    text-align: left;
+    padding: 0.5rem;
+    border-bottom: 2px solid #ddd;
+    font-weight: bold;
+    background-color: #f8f8f8;
+}
+
+.dependency-table td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+.dependency-item { /* This class was in App.css but seems more specific to NodeDetailPanel context */
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+.dependency-name {
+    font-weight: bold;
+}
+
+.dependency-description {
+    color: #555;
+}
