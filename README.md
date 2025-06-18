@@ -1,54 +1,74 @@
-# React + TypeScript + Vite
+# Tivoli Workload Graph Visualizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A client-side web application designed to analyze and visualize workflows (Nets) from IBM Tivoli Workload Scheduler. The application accepts a set of structured `.csv` files as input, analyzes them, and generates an interactive directed graph of the dependencies between various jobs.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Upload and parse CSV files from Tivoli Workload Scheduler
+- Interactive graph visualization with D3.js
+- Filter nodes by type and exclusion lists
+- Search and highlight specific nodes
+- Detailed node information panel
+- Zoom, pan, and drag functionality
 
-## Expanding the ESLint configuration
+## Live Demo
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+You can access the live application at: [https://poliez.github.io/tivoli-graph-visualizer/](https://poliez.github.io/tivoli-graph-visualizer/)
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Development
+
+### Prerequisites
+
+- Node.js (LTS version recommended)
+- npm (comes with Node.js)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/poliez/tivoli-graph-visualizer.git
+   cd tivoli-graph-visualizer
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open your browser and navigate to `http://localhost:5173`
+
+### Available Scripts
+
+- `npm run dev` - Start the development server
+- `npm run build` - Build the application for production
+- `npm run preview` - Preview the production build locally
+- `npm run lint` - Run ESLint to check for code issues
+- `npm run test` - Run tests
+- `npm run test:watch` - Run tests in watch mode
+
+## Deployment
+
+This project is configured to automatically deploy to GitHub Pages when changes are pushed to the main branch. The deployment is handled by a GitHub Actions workflow.
+
+### Manual Deployment
+
+If you need to deploy manually, you can run:
+
+```bash
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Then deploy the `dist` directory to your web server.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Technology Stack
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- [Vite](https://vitejs.dev/) - Build tool and development server
+- [React](https://reactjs.org/) - UI library
+- [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
+- [D3.js](https://d3js.org/) - Data visualization library
+- [Papa Parse](https://www.papaparse.com/) - CSV parsing library
