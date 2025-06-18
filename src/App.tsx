@@ -1,6 +1,5 @@
 import {useEffect, useState} from 'react';
 import type {GraphData, GraphNode, ParsedData} from './types';
-import './App.css';
 
 import {
     buildExternalPredecessorsGraph,
@@ -176,49 +175,50 @@ function App() {
 
 
     return (
-        <div className="app-container">
-            <header className={`app-controls-header ${isHeaderCollapsed ? 'collapsed' : ''}`}>
-                <div className="header-title-row">
-                    <h1 style={{marginRight: '10px'}}>Tivoli Workload Graph
-                        Visualizer {currentNetName && ` - Net: ${currentNetName}`}</h1>
+        <div className="flex flex-col h-screen w-screen">
+            <header className={`p-4 bg-white border-b border-gray-300 shadow-sm z-10 transition-all duration-300 ease-in-out overflow-hidden ${
+                isHeaderCollapsed ? 'max-h-10 pb-0' : 'max-h-[500px]'
+            }`}>
+                <div className="flex justify-start items-center relative mb-4">
+                    <h1 className="m-0 text-2xl text-left mr-2.5">
+                        Tivoli Workload Graph Visualizer {currentNetName && ` - Net: ${currentNetName}`}
+                    </h1>
 
                     {fullGraphData && (
-                        <>
-                            <SearchBar onSearch={setSearchTerm}/>
-                        </>
+                        <SearchBar onSearch={setSearchTerm}/>
                     )}
 
                     <button
-                        className="collapse-toggle-btn"
+                        className="absolute right-2.5 bg-transparent border-none text-xl cursor-pointer text-gray-600 px-2.5 py-1 rounded hover:bg-gray-100"
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
                     >
                         {isHeaderCollapsed ? '▼' : '▲'}
                     </button>
                 </div>
-                <div className="controls-container">
-                    <div className="control-group">
-                        <h4>1. Carica File</h4>
+                <div className="flex items-center justify-center gap-6 flex-wrap">
+                    <div className="flex flex-col self-start gap-2">
+                        <h4 className="m-0 text-gray-800 border-b-2 border-blue-500 pb-1">1. Carica File</h4>
                         <FileUploader onFilesSelected={handleFilesSelected}/>
                         {files !== null && files.length > 0 && (
-                            <div className="additional-files-info">
+                            <div className="mt-1 text-sm text-gray-600">
                                 <p>File caricati: {files.length}</p>
-                                <ul>
+                                <ul className="list-disc list-inside">
                                     {Array.from(files).map((file, index) => (
                                         <li key={index}>{file.name}</li>
                                     ))}
                                 </ul>
                             </div>
                         )}
-                        <h4> 1.1 Carica Dettagli Aggiuntivi (Opzionale)</h4>
+                        <h4 className="m-0 text-gray-800 border-b-2 border-blue-500 pb-1">1.1 Carica Dettagli Aggiuntivi (Opzionale)</h4>
                         <FileUploader
                             onFilesSelected={handleAdditionalFilesSelected}
                             isLoading={isLoadingAdditionalFiles}
                             label="Carica file con dettagli aggiuntivi per dipendenze esterne"
                         />
                         {additionalFiles.length > 0 && (
-                            <div className="additional-files-info">
+                            <div className="mt-1 text-sm text-gray-600">
                                 <p>File aggiuntivi caricati: {additionalFiles.length}</p>
-                                <ul>
+                                <ul className="list-disc list-inside">
                                     {additionalFiles.map((fileList, index) => (
                                         <li key={index}>
                                             {Array.from(fileList).map((file, fileIndex) => (
@@ -232,20 +232,20 @@ function App() {
                         )}
                     </div>
 
-                    {isParsing && <p>Analisi file in corso...</p>}
+                    {isParsing && <p className="text-blue-600 font-medium">Analisi file in corso...</p>}
 
                     {allNodeNames.length > 0 && (
                         <>
-                            <div className="control-group">
-                                <h4>2. Configura Esclusioni</h4>
+                            <div className="flex flex-col self-start gap-2">
+                                <h4 className="m-0 text-gray-800 border-b-2 border-blue-500 pb-1">2. Configura Esclusioni</h4>
                                 <ExclusionSelector
                                     allNodeNames={allNodeNames}
                                     initialExclusions={excludedNodes}
                                     onExclusionChange={setExcludedNodes}
                                 />
                             </div>
-                            <div className="control-group">
-                                <h4>3. Filtra per Tipo</h4>
+                            <div className="flex flex-col self-start gap-2">
+                                <h4 className="m-0 text-gray-800 border-b-2 border-blue-500 pb-1">3. Filtra per Tipo</h4>
                                 <OperationTypeFilter
                                     operationTypes={operationTypes}
                                     selectedTypes={selectedOperationTypes}
@@ -254,11 +254,12 @@ function App() {
                                     onIncludeUnknownTypesChange={setIncludeUnknownTypes}
                                 />
 
-                                <h4>4. Modalità di Visualizzazione</h4>
-                                <div className="visualization-mode">
-                                    <label>
+                                <h4 className="m-0 text-gray-800 border-b-2 border-blue-500 pb-1">4. Modalità di Visualizzazione</h4>
+                                <div className="my-2 p-2 border border-gray-300 rounded bg-gray-50">
+                                    <label className="flex items-center cursor-pointer">
                                         <input
                                             type="checkbox"
+                                            className="mr-2"
                                             checked={showOnlyExternalPreds}
                                             onChange={(e) => setShowOnlyExternalPreds(e.target.checked)}
                                         />
@@ -266,10 +267,13 @@ function App() {
                                     </label>
                                 </div>
                             </div>
-                            <div className="control-group">
-                                <h4>5. Genera Grafo</h4>
-                                <button onClick={handleGenerateGraph} disabled={isGenerating}
-                                        className="generate-button">
+                            <div className="flex flex-col self-start gap-2">
+                                <h4 className="m-0 text-gray-800 border-b-2 border-blue-500 pb-1">5. Genera Grafo</h4>
+                                <button 
+                                    onClick={handleGenerateGraph} 
+                                    disabled={isGenerating}
+                                    className="self-end h-full w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                >
                                     {isGenerating ? 'Generazione...' : 'Genera Grafo'}
                                 </button>
                             </div>
@@ -278,21 +282,25 @@ function App() {
                 </div>
             </header>
 
-            <main className="app-main">
-                <div className="graph-panel">
+            <main className="flex-1 relative overflow-hidden">
+                <div className="w-full h-full cursor-grab">
                     {isParsing || isGenerating ? (
-                        <div className="placeholder">Elaborazione in corso...</div>
+                        <div className="flex justify-center items-center h-full text-gray-500 text-xl">
+                            Elaborazione in corso...
+                        </div>
                     ) : filteredGraphData ? (
                         <GraphViewer data={filteredGraphData} onNodeClick={setSelectedNode} searchTerm={searchTerm}/>
                     ) : (
-                        <div className="placeholder">
+                        <div className="flex justify-center items-center h-full text-gray-500 text-xl">
                             {error ? `Errore: ${error}` : 'Carica i file e clicca "Genera Grafo"'}
                         </div>
                     )}
                 </div>
 
-                {/* Il pannello dei dettagli ora è un overlay controllato dallo stato `selectedNode` */}
-                <div className={`node-detail-sidebar ${selectedNode ? 'open' : ''}`}>
+                {/* Detail panel sidebar */}
+                <div className={`absolute top-0 right-0 w-96 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out overflow-y-auto z-20 ${
+                    selectedNode ? 'translate-x-0' : 'translate-x-full'
+                }`}>
                     {selectedNode && filteredGraphData &&
                         <NodeDetailPanel node={selectedNode} graphData={filteredGraphData}
                                          onClose={() => setSelectedNode(null)}/>}

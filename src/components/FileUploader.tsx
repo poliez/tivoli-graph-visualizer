@@ -47,7 +47,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
 
     return (
         <div
-            className={`file-drop-zone ${isDragOver ? 'drag-over' : ''} ${isLoading ? 'loading' : ''}`}
+            className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors duration-200 relative max-h-20 ${
+                isDragOver ? 'bg-blue-50 border-blue-300' : 'border-gray-300'
+            } ${
+                isLoading ? 'border-gray-300 bg-gray-100 bg-opacity-20 cursor-not-allowed' : ''
+            }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
@@ -60,7 +64,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                 multiple
                 accept=".csv"
                 onChange={handleFileChange}
-                className="file-input-hidden"
+                className={`absolute top-0 left-0 w-full h-full opacity-0 ${
+                    isLoading ? 'cursor-not-allowed' : 'cursor-pointer'
+                }`}
                 disabled={isLoading}
             />
         </div>

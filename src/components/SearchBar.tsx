@@ -21,14 +21,15 @@ const SearchBar: React.FC<SearchBarProps> = ({onSearch}) => {
     }, [value, onSearch]);
 
     return (
-        <div className="search-bar">
-            <label htmlFor="job-search" style={{marginRight: '10px'}}>Cerca e Isola Job</label>
+        <div className="flex items-center gap-2">
+            <label htmlFor="job-search" className="font-medium text-gray-700">Cerca e Isola Job</label>
             <input
                 id="job-search"
                 type="text"
                 placeholder="Nome esatto del job..."
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
+                className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
         </div>
     );

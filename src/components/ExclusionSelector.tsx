@@ -50,41 +50,47 @@ const ExclusionSelector: React.FC<ExclusionSelectorProps> = ({allNodeNames, init
     };
 
     return (
-        <div className="exclusion-selector">
-            <label htmlFor="exclusion-filter">Filtra e Seleziona Nodi da Escludere</label>
+        <div className="border border-gray-300 rounded p-2 w-64">
+            <label htmlFor="exclusion-filter" className="block text-sm font-medium text-gray-700 mb-2">
+                Filtra e Seleziona Nodi da Escludere
+            </label>
             <input
                 id="exclusion-filter"
                 type="text"
                 placeholder="Cerca fase..."
                 value={filterText}
                 onChange={(e) => setFilterText(e.target.value)}
+                className="w-full p-2 mb-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <div className="filter-actions">
+            <div className="flex justify-between mt-2">
                 <button 
-                    className="select-button" 
+                    className="text-sm px-2 py-1 bg-gray-100 border border-gray-300 rounded cursor-pointer hover:bg-gray-200 transition-colors" 
                     onClick={handleExcludeAllFiltered}
                     title="Escludi tutti i risultati filtrati"
                 >
                     Escludi Tutti
                 </button>
                 <button 
-                    className="select-button" 
+                    className="text-sm px-2 py-1 bg-gray-100 border border-gray-300 rounded cursor-pointer hover:bg-gray-200 transition-colors" 
                     onClick={handleIncludeAllFiltered}
                     title="Includi tutti i risultati filtrati"
                 >
                     Includi Tutti
                 </button>
             </div>
-            <div className="exclusion-list">
+            <div className="max-h-64 overflow-y-auto border-t border-gray-200 mt-2">
                 {filteredList.map(nodeName => (
-                    <div key={nodeName} className="list-item">
+                    <div key={nodeName} className="flex items-center py-1">
                         <input
                             type="checkbox"
                             id={`exclude-${nodeName}`}
                             checked={excludedNodes.has(nodeName)}
                             onChange={() => handleToggleNode(nodeName)}
+                            className="mr-2"
                         />
-                        <label htmlFor={`exclude-${nodeName}`}>{nodeName}</label>
+                        <label htmlFor={`exclude-${nodeName}`} className="cursor-pointer whitespace-nowrap text-sm">
+                            {nodeName}
+                        </label>
                     </div>
                 ))}
             </div>
