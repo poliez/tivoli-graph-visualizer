@@ -58,16 +58,16 @@ describe('NodeDetailPanel', () => {
     expect(screen.getByText('Dettagli: Test Job')).toBeInTheDocument();
 
     // Check if metadata is displayed
-    expect(screen.getByText('Nome Job')).toBeInTheDocument();
+    expect(screen.getByText('Nome Job', { selector: 'dt' })).toBeInTheDocument();
     expect(screen.getByText('Test Job', { selector: 'dd' })).toBeInTheDocument();
 
-    expect(screen.getByText('Tipo')).toBeInTheDocument();
+    expect(screen.getByText('Tipo', { selector: 'dt' })).toBeInTheDocument();
     expect(screen.getByText('COMMAND', { selector: 'dd' })).toBeInTheDocument();
 
-    expect(screen.getByText('Descrizione')).toBeInTheDocument();
+    expect(screen.getByText('Descrizione', { selector: 'dt' })).toBeInTheDocument();
     expect(screen.getByText('A test job', { selector: 'dd' })).toBeInTheDocument();
 
-    expect(screen.getByText('Istruzioni')).toBeInTheDocument();
+    expect(screen.getByText('Istruzioni', { selector: 'dt' })).toBeInTheDocument();
     expect(screen.getByText('Some instructions', { selector: 'dd' })).toBeInTheDocument();
   });
 

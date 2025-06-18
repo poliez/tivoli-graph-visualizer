@@ -42,7 +42,7 @@ describe('FileUploader', () => {
     const onFilesSelectedMock = vi.fn();
     render(<FileUploader onFilesSelected={onFilesSelectedMock} />);
 
-    const dropZone = screen.getByText('Trascina i file qui, o clicca per selezionarli.').parentElement;
+    const dropZone = screen.getByTestId('file-drop-zone');
     expect(dropZone).toBeInTheDocument();
 
     // Create a mock File
@@ -56,22 +56,22 @@ describe('FileUploader', () => {
 
     // Test dragEnter
     fireEvent.dragEnter(dropZone!, { dataTransfer });
-    expect(dropZone).toHaveClass('drag-over');
+    expect(dropZone?.className).toContain('drag-over');
 
     // Test dragOver
     fireEvent.dragOver(dropZone!, { dataTransfer });
-    expect(dropZone).toHaveClass('drag-over');
+    expect(dropZone?.className).toContain('drag-over');
 
     // Test dragLeave
     fireEvent.dragLeave(dropZone!, { dataTransfer });
-    expect(dropZone).not.toHaveClass('drag-over');
+    expect(dropZone?.className).not.toContain('drag-over');
 
     // Test dragEnter again to set up for drop
     fireEvent.dragEnter(dropZone!, { dataTransfer });
 
     // Test drop
     fireEvent.drop(dropZone!, { dataTransfer });
-    expect(dropZone).not.toHaveClass('drag-over');
+    expect(dropZone?.className).not.toContain('drag-over');
     expect(onFilesSelectedMock).toHaveBeenCalled();
   });
 });

@@ -52,6 +52,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
+            data-testid="file-drop-zone"
         >
             {isLoading ? 'Caricamento in corso...' : label}
             <input
