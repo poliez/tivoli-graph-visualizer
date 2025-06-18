@@ -3,8 +3,8 @@ import type {GraphData, GraphNode, ParsedData} from './types';
 import './App.css';
 
 import {
-    buildGraphFromParsedData,
     buildExternalPredecessorsGraph,
+    buildGraphFromParsedData,
     extractAllNodeNames,
     extractOperationTypes,
     filterGraph,
@@ -161,7 +161,14 @@ function App() {
         <div className="app-container">
             <header className={`app-controls-header ${isHeaderCollapsed ? 'collapsed' : ''}`}>
                 <div className="header-title-row">
-                    <h1>Tivoli Workload Graph Visualizer {currentNetName && ` - Net: ${currentNetName}`}</h1>
+                    <h1 style={{marginRight: '10px'}}>Tivoli Workload Graph Visualizer {currentNetName && ` - Net: ${currentNetName}`}</h1>
+
+                    {fullGraphData && (
+                        <>
+                            <SearchBar onSearch={setSearchTerm}/>
+                        </>
+                    )}
+
                     <button
                         className="collapse-toggle-btn"
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
@@ -238,21 +245,13 @@ function App() {
                                         Mostra solo job con predecessori esterni
                                     </label>
                                 </div>
-
+                            </div>
+                            <div className="control-group">
                                 <h4>5. Genera Grafo</h4>
                                 <button onClick={handleGenerateGraph} disabled={isGenerating}
                                         className="generate-button">
                                     {isGenerating ? 'Generazione...' : 'Genera Grafo'}
                                 </button>
-                            </div>
-                        </>
-                    )}
-
-                    {fullGraphData && (
-                        <>
-                            <div className="control-group">
-                                <h4>6. Filtra Grafo</h4>
-                                <SearchBar onSearch={setSearchTerm}/>
                             </div>
                         </>
                     )}
