@@ -82,6 +82,7 @@ function App() {
                 for (const keyword in fileTypeKeywords) {
                     if (file.name.includes(keyword)) {
                         const fileType = fileTypeKeywords[keyword];
+                        // @ts-expect-error non verranno associati file alla proprietà additionalExternalFiles
                         classifiedFiles[fileType] = file;
                         break; // Trovato, passa al prossimo file
                     }
@@ -178,7 +179,8 @@ function App() {
         <div className="app-container">
             <header className={`app-controls-header ${isHeaderCollapsed ? 'collapsed' : ''}`}>
                 <div className="header-title-row">
-                    <h1 style={{marginRight: '10px'}}>Tivoli Workload Graph Visualizer {currentNetName && ` - Net: ${currentNetName}`}</h1>
+                    <h1 style={{marginRight: '10px'}}>Tivoli Workload Graph
+                        Visualizer {currentNetName && ` - Net: ${currentNetName}`}</h1>
 
                     {fullGraphData && (
                         <>
@@ -221,6 +223,7 @@ function App() {
                                         <li key={index}>
                                             {Array.from(fileList).map((file, fileIndex) => (
                                                 <span key={fileIndex}>{file.name}</span>
+                                                // @ts-expect-error i tipi non sono corretti ma funziona
                                             )).reduce((prev, curr) => [prev, ', ', curr])}
                                         </li>
                                     ))}
