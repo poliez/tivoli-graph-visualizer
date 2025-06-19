@@ -51,6 +51,10 @@ The application was built following modern front-end development principles, wit
 
     * **Why?** While many "out-of-the-box" charting libraries exist, none offer the flexibility and granular control of D3.js. Since our goal was to create a *custom* and interactive visualization (with drag-and-drop, zoom, highlighting), D3 was the perfect choice. It has been integrated within a React component, letting React manage the main DOM and D3 control the SVG elements inside the graph.
 
+* ### Tailwind CSS
+
+    * **Why?** Tailwind CSS is a utility-first CSS framework that allows for rapid UI development without leaving your HTML (or JSX). Instead of writing custom CSS and managing complex stylesheets, Tailwind provides low-level utility classes that let you build completely custom designs directly in your markup. This approach reduces context-switching between files, keeps styles scoped to components, and results in smaller CSS bundle sizes through its built-in purging of unused styles.
+
 ## 3\. Prerequisites
 
 To build and run this project, you must have the following software installed on your machine:
@@ -191,8 +195,20 @@ To maintain code quality and consistency, all contributors are expected to follo
 * **Separation of Concerns**: Keep components focused on rendering JSX. Extract complex, non-rendering logic into custom hooks (`use...`) or helper functions in the `src/services` directory. See `graphProcessor.ts` as the primary example of this principle.
 
 ### Styling
-* **CSS Naming Convention**: The project currently uses global CSS in `App.css` with a BEM-like naming convention (e.g., `node-detail-sidebar`, `panel-header`, `list-item`). New styles should follow this pattern for consistency.
-* **Scoped Styles**: If a new component requires complex and heavily scoped styling, consider using CSS Modules (`*.module.css`) to prevent style conflicts.
+* **Tailwind CSS**: The project uses Tailwind CSS for styling. Prefer using Tailwind utility classes directly in your JSX for component styling:
+    ```tsx
+    // Good
+    <div className="flex items-center p-4 bg-gray-100 rounded-md shadow-sm">
+      <h2 className="text-xl font-semibold text-gray-800">Title</h2>
+    </div>
+    ```
+* **Custom CSS**: For styles that can't be achieved with Tailwind (like D3.js-specific styles), the project uses global CSS in `App.css` with a BEM-like naming convention (e.g., `node-detail-sidebar`, `panel-header`, `list-item`).
+* **Tailwind Best Practices**:
+    * Group related utilities (positioning, dimensions, typography, etc.) for readability
+    * Use Tailwind's responsive prefixes (`sm:`, `md:`, `lg:`) for responsive design
+    * Extract commonly repeated utility patterns into custom components
+    * Use `@apply` in CSS files only when absolutely necessary
+* **Scoped Styles**: If a component requires complex and heavily scoped styling that can't be achieved with Tailwind, consider using CSS Modules (`*.module.css`) to prevent style conflicts.
 
 ### Linting & Formatting
 * **Automatic Formatting**: The project is configured with ESLint and Prettier to enforce a consistent code style.
@@ -248,7 +264,7 @@ components.
         render(<SearchBar onSearch={onSearchMock} />);
 
         const input = screen.getByLabelText('Cerca e Isola Job');
-        
+
         // Simulate user typing
         fireEvent.change(input, { target: { value: 'BNRUN' } });
 

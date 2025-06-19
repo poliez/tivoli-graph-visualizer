@@ -71,4 +71,5 @@ Then deploy the `dist` directory to your web server.
 - [React](https://reactjs.org/) - UI library
 - [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
 - [D3.js](https://d3js.org/) - Data visualization library
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
 - [Papa Parse](https://www.papaparse.com/) - CSV parsing library
